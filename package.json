@@ -1,0 +1,14 @@
+{
+  "name": "@busy-web/cli",
+  "version": "0.0.1",
+  "description": "Command line tools to enhance web dev tasks",
+  "main": "bin/busyweb",
+  "repository": "git@github.com:busy-web/cli.git",
+  "author": "busy inc",
+  "license": "MIT",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "commander": "^2.13.0",
+    "rsvp": "^4.7.0"
+  }
+}
