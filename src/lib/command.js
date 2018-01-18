@@ -1,18 +1,5 @@
 
-function assert(msg, test) {
-	if (!test) {
-		throw new Error(msg);
-	}
-}
-
-function isDefined(value) {
-	return value !== undefined && value !== null;
-}
-
-function isArray(value) {
-	return isDefined(value) && Array.isArray(value);
-}
-
+const { assert, isDefined, isArray } = loader('utils/types');
 
 function Command (program) {
 	assert("name must exist. `this.name = 'command name';`", isDefined(this.name));

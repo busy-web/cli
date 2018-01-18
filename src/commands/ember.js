@@ -1,7 +1,7 @@
 
-const createCommand = require('../lib/command');
-const cmd = require('../lib/cmd');
-const logger = require('../lib/logger');
+const createCommand = loader('lib/command');
+const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
 
 module.exports = createCommand({
 	name: 'ember',

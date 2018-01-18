@@ -1,8 +1,13 @@
-
-const RSVP = require('rsvp');
+/**
+ * @module utils
+ *
+ */
 const { exec } = require('child_process');
+const RSVP = require('rsvp');
 const colors = require('colors');
-const logger = require('./logger');
+
+const logger = loader('utils/logger');
+
 
 module.exports = function(arg, opts={}) {
 	logger.write(colors.green('=> ') + colors.blue(arg));

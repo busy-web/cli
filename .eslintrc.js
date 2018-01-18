@@ -8,7 +8,7 @@ module.exports = {
   env: {
 		node: true
   },
-	globals: { },
+	globals: { loader },
   rules: {
 		'no-console': 0
 	}
