@@ -11,14 +11,14 @@ const logger = loader('utils/logger');
 
 	
 function buildType(release, version) {
-	return `npm version ${version}-canary.0`;
+	return `npm version ${version}-${release}.0`;
 }
 
 const buildTypes = {
 	docker(version) { return buildType('dev', version); },
 	canary(version) { return buildType('canary', version); },
-	alpha(version) { return buildType('canary', version); },
-	beta(version) { return buildType('canary', version); },
+	alpha(version) { return buildType('alpha', version); },
+	beta(version) { return buildType('beta', version); },
 	prod(version) { return `npm version ${version}`; },
 	patch(version) {
 		if (/-/.test(version)) {
@@ -37,6 +37,7 @@ function getNextVersion(version) {
 
 	return cmd(`npm version --no-git-tag-version ${mode}`, { hidecmd: true }).then(newver => {
 		newver = normailzeResponse(newver);
+		newver = newver.split('-')[0];
 		return cmd(`npm version --no-git-tag-version ${version}`, { hidecmd: true }).then(oldver => {
 			oldver = normailzeResponse(oldver);
 			return { newver, oldver };
@@ -69,7 +70,7 @@ module.exports = createCommand({
 		let pkgInfo = require(path.join(cwd + '/package.json'));
 		let version = pkgInfo.version;
 		let promise = RSVP.resolve({ newver: version, oldver: version });
-		if (type === 'canary' || type === 'alpha' || type === 'beta') {
+		if (type === 'docker' || type === 'canary' || type === 'alpha' || type === 'beta') {
 			promise = getNextVersion(version);
 		}
 
@@ -79,19 +80,17 @@ module.exports = createCommand({
 		}
 
 		promise.then(vers => {
-			let commitMessage = 'Release Candidate %s';
-			let arg = buildTypes[type](`${vers.newver} -m '${commitMessage}'`);
+			let arg = buildTypes[type](vers.newver);
+			logger.info(arg);
 			cmd(arg).then(ver => {
-					logger.info(`Version has been updated from ${vers.oldver} to ${ver}`);
-					cmd(`git branch`, { hidecmd: true }).then(branch => {
-						branch = normailzeResponse(branch);
-						cmd(`git push ${remote} ${branch}`, () => {
-							cmd(`git push ${remote} --tags`, () => {
-								logger.info(`${branch} is updated on ${remote} remote`);
-								logger.info(`${ver} Release Finished`);
-							});
+				cmd(`git branch`, { hidecmd: true }).then(branch => {
+					branch = normailzeResponse(branch);
+					cmd(`git push ${remote} ${branch}`).then(() => {
+						cmd(`git push ${remote} --tags`).then(() => {
+							logger.info(`${ver} released to ${remote}/${branch}!`);
 						});
 					});
+				});
 			});
 		});
 	}
