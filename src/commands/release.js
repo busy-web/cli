@@ -34,8 +34,8 @@ const buildTypes = {
 			return 'npm version patch';
 		}
 	},
-	minor() { return 'npm version minor'; },
-	major() { return 'npm version major'; }
+	minor() { return 'npm version --no-git-tag-version minor'; },
+	major() { return 'npm version --no-git-tag-version major'; }
 };
 
 function getNextVersion(version) {
