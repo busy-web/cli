@@ -1,11 +1,4 @@
 #!/usr/bin/env node
 'use strict';
 
-const path = require('path');
-const root = path.dirname(__dirname);
-const appdir = path.join(root, 'src');
-
-const pkg = require(path.join(root, 'package.json'));
-const app = require(path.join(appdir, 'index.js'));
-
-app(appdir, pkg);
+require('../src/index.js');

@@ -1,7 +1,24 @@
 
 const { assert, isDefined, isArray } = loader('utils/types');
+const logger = loader('utils/logger');
+const colors = require('colors');
 
-function Command (program) {
+function parseOption(opt) {
+	let { cmd, short, desc, args, type } = opt;
+	if (!/^--/.test(cmd)) {
+		cmd = `--${cmd}`;
+	}
+	
+	if (!/^-/.test(short)) {
+		short = `-${short}`;
+	}
+	
+	args = args || [];
+	let name = `${short}, ${cmd} ${args.join(' ')}`.trim();
+	return { name, desc, type };
+}
+
+module.exports = function Command (program) {
 	assert("name must exist. `this.name = 'command name';`", isDefined(this.name));
 	assert("args must exist as a descriptor for the type of allowed arguments. `get args() { return [ ... ]; } => ['<arg1>', '<arg2>', '[options]']", isArray(this.args));
 	assert("description must exist. `this.description = 'description';`", isDefined(this.description));
@@ -9,37 +26,42 @@ function Command (program) {
 
 	const cmd = `${this.name} ${this.args.join(' ')}`.trim();
 	this.p = program.command(cmd);
-	
-	if (isDefined(this.alias)) {
-		this.p.alias(this.alias);
-	}
-	
 	this.p.description(this.description);
 
-	Object.keys(this.options).forEach(key => {
-		let cmd = `--${key}`;
-		let [ short, desc, type ] = this.options[key];
-		if (!/^-/.test(short)) {
-			short = `-${short}`;
+	this.options.forEach(opt => {
+		let { name, desc, type } = parseOption(opt);
+		this.p.option(name, desc, type);
+	});
+
+	this.p.on('--help', () => {
+		logger.write('');
+		logger.write('----');
+		logger.write('');
+		logger.write('  ' + this.name + ' ' + colors.italic(this.args.join(' ')));
+
+		if (this.description && this.description.length) {
+			logger.write('    ' + colors.white.dim(this.description));
 		}
-		this.p.option(`${short}, ${cmd}`, desc, type);
+
+		if (this.alias && this.alias.length) {
+			logger.write(colors.blue(colors.yellow.italic(`    - alias: ${this.alias}`)));
+		}
+
+		logger.write('');
+		logger.write(colors.white.dim('    Options:'));
+		this.options.forEach(opt => {
+			let { name, desc } = parseOption(opt);
+			if (desc && desc.length) {
+				desc = ' ' + colors.white.dim(desc);
+			} else {
+				desc = '';
+			}
+
+			logger.write('      ' + colors.green(name) + desc);
+		});
+		logger.write('');
+		logger.write('----');
 	});
 
 	this.p.action((...args) => this.run && this.run.apply(this, args));
-}
-
-module.exports = function createCommand(opts) {
-	return function(program) {
-		this.name = opts.name;
-		this.description = opts.description;
-		this.alias = opts.alias;
-		this.args = opts.args;
-		this.options = opts.options;
-
-		if (opts.run) {
-			this.run = opts.run;
-		}
-
-		Command.call(this, program);
-	}
 }

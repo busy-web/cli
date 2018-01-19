@@ -1,5 +1,8 @@
-
-const createCommand = loader('lib/command');
+/**
+ * @module Commands
+ * 
+ */
+const createCommand = loader('utils/create-command');
 const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');
 
@@ -9,10 +12,10 @@ module.exports = createCommand({
 	alias: 'e',
 	args: [],
 	
-	options: {
-		global: ['-g', 'use global ember install'],
-		update: ['-u', 'update ember if its out of date']
-	},
+	options: [
+		{ cmd: '--global', short: '-g', desc: 'use global ember install' },
+		{ cmd: '--update', short: '-u', desc: 'update ember if its out of date' }
+	],
 	
 	run() {
 		cmd(`yarn ${this.p.global ? 'global list' : 'list'} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
