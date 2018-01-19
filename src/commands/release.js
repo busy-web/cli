@@ -11,7 +11,7 @@ const logger = loader('utils/logger');
 
 	
 function buildType(release, version) {
-	return `npm version ${version}-${release}.0`;
+	return `npm version ${version}-${release}.1`;
 }
 
 const buildTypes = {
