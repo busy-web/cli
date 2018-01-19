@@ -71,6 +71,9 @@ module.exports = createCommand({
 		let promise = RSVP.resolve({ newver: version, oldver: version });
 		if (type === 'docker' || type === 'canary' || type === 'alpha' || type === 'beta') {
 			promise = getNextVersion(version);
+		} else if (type === 'prod' || type === 'production') {
+			version = version.split('-')[0];
+			promise = RSVP.resolve({ newver: version, oldver: version });
 		}
 
 		let remote = 'origin';
@@ -79,6 +82,7 @@ module.exports = createCommand({
 		}
 
 		promise.then(vers => {
+			console.log(vers.newver);
 			cmd(buildTypes[type](vers.newver)).then(ver => {
 				ver = normailzeResponse(ver);
 				cmd(`git branch`, { hidecmd: true }).then(branch => {
