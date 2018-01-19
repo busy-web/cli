@@ -59,6 +59,7 @@ module.exports = createCommand({
 			cmd(`npm version --no-git-tag-version ${version}`).then(oldver => {
 				oldver = oldver.replace(/\n/g, '');
 
+				console.log('command: ', `${newver} -m "${commitMessage}"`);
 				let arg = buildTypes[type](`${newver} -m "${commitMessage}"`);
 				cmd(arg).then(ver => {
 					logger.info(`Finished: version has been updated from ${oldver} to ${ver}`);
