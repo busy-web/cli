@@ -48,15 +48,20 @@ module.exports = createCommand({
 		const cwd = process.cwd();
 		let pkgInfo = require(path.join(cwd + '/package.json'));
 		let version = pkgInfo.version;
-		cmd(`npm version --no-git-tag-version patch`).then(newver => {
+		let mode = 'patch';
+		if (/-/.test(version)) {
+			mode = 'prerelease';
+		}
+		let commitMessage = "Release Candidate %s";
+
+		cmd(`npm version --no-git-tag-version ${mode}`).then(newver => {
 			newver = newver.replace(/\n/g, '');
 			cmd(`npm version --no-git-tag-version ${version}`).then(oldver => {
 				oldver = oldver.replace(/\n/g, '');
 
-				let arg = buildTypes[type](newver);
-				console.log('command', arg);
+				let arg = buildTypes[type](`${newver} -m "${commitMessage}"`);
 				cmd(arg).then(ver => {
-					console.log('finished version: ', ver);
+					logger.info(`Finished: version has been updated from ${oldver} to ${ver}`);
 				});
 			});
 		});

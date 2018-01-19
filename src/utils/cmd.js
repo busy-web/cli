@@ -16,9 +16,11 @@ module.exports = function(arg, opts={}) {
 		const proc = exec(arg, (err, stdout, stderr) => {
 			spinner.stop();
 			if (err) {
-				logger.error(err, stderr);
+				//logger.error(err, stderr);
+				throw new Error(stderr);
+			} else {
+				resolve(stdout);
 			}
-			resolve(stdout);
 		});
 
 		if (opts.verbose) {
