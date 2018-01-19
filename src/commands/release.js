@@ -34,7 +34,6 @@ function getNextVersion(version) {
 	if (/-/.test(version)) {
 		mode = 'prerelease';
 	}
-
 	return cmd(`npm version --no-git-tag-version ${mode}`, { hidecmd: true }).then(newver => {
 		newver = normailzeResponse(newver);
 		newver = newver.split('-')[0];
@@ -80,9 +79,8 @@ module.exports = createCommand({
 		}
 
 		promise.then(vers => {
-			let arg = buildTypes[type](vers.newver);
-			logger.info(arg);
-			cmd(arg).then(ver => {
+			cmd(buildTypes[type](vers.newver)).then(ver => {
+				ver = normailzeResponse(ver);
 				cmd(`git branch`, { hidecmd: true }).then(branch => {
 					branch = normailzeResponse(branch);
 					cmd(`git push ${remote} ${branch}`).then(() => {

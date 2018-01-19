@@ -1,7 +1,7 @@
 
 //const Command = loader('lib/command');
 const { assert, isDefined, isArray } = loader('utils/types');
-const logger = loader('utils/logger');
+//const logger = loader('utils/logger');
 const colors = require('colors');
 
 function parseOption(opt) {
