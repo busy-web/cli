@@ -85,7 +85,7 @@ module.exports = createCommand({
 					branch = normailzeResponse(branch);
 					cmd(`git push ${remote} ${branch}`).then(() => {
 						cmd(`git push ${remote} --tags`).then(() => {
-							logger.info(`${ver} released to ${remote}/${branch}!`);
+							logger.info(`${ver} released to ${remote} remote!`);
 						});
 					});
 				});
