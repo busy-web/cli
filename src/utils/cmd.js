@@ -4,19 +4,18 @@
  */
 const { exec } = require('child_process');
 const RSVP = require('rsvp');
-//const colors = require('colors');
-const ora = require('ora');
+const colors = require('colors');
 const logger = loader('utils/logger');
 
 
 module.exports = function(arg, opts={}) {
-	const spinner = ora({ color: 'green'}, '=> ' + arg).start();
-	//logger.write(colors.green('=> ') + colors.blue(arg));
+	if (!opts.hidecmd) {
+		logger.write(colors.green('=> ') + colors.blue(arg));
+	}
+
 	return new RSVP.Promise(resolve => {
 		const proc = exec(arg, (err, stdout, stderr) => {
-			spinner.stop();
 			if (err) {
-				//logger.error(err, stderr);
 				throw new Error(stderr);
 			} else {
 				resolve(stdout);
