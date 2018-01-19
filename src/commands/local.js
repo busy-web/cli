@@ -20,31 +20,31 @@ module.exports = createCommand({
 	run(task) {
 		if (task === 'clean' || task === 'c') {
 			return clean.call(this).then(() => {
-				logger.info('local env is clean.');
+				logger.info('Local environment is clean.');
 			});
 		} else if (task === 'update' || task === 'u') {
 			return update.call(this).then(() => {
-				logger.info('local env is updated');
+				logger.info('Local environment is updated');
 			});
 		} else if (task === 'install' || task === 'i') {
 			return install.call(this).then(() => {
-				logger.info('local env is installed');
+				logger.info('Local environment is installed');
 			});
 		}
 	}
 });
 
 function clean() {
-	return cmd('rm -rf node_modules').then(() => {
-		return cmd('rm -rf tmp').then(() => {
-			return cmd('rm -rf dist').then(() => {
-				return cmd('ls bower_components').then(str => {
-					if (str.length) {
-						return cmd('rm -rf bower_components').then(() => {
-							return cmd('bower cache clean');
+	return cmd('rm -rf node_modules', { ignoreError: true }).then(() => {
+		return cmd('rm -rf tmp', { ignoreError: true }).then(() => {
+			return cmd('rm -rf dist', { ignoreError: true }).then(() => {
+				return cmd('ls -al', { hidecmd: true }).then(str => {
+					if (/\.bowerrc/.test(str)) {
+						return cmd('rm -rf bower_components', { ignoreError: true }).then(() => {
+							return cmd('bower cache clean').then(() => ({ hasBower: true }));
 						});
 					} else {
-						return RSVP.resolve();
+						return RSVP.resolve({ hasBower: false });
 					}
 				});
 			});
@@ -57,10 +57,25 @@ function update() {
 }
 
 function install() {
-	return clean().then(() => {
-		return cmd('rm yarn.lock').then(() => {
-			let lockfile = this.p.rebuild ? '' : '--pure-lockfile';
-			return cmd(`yarn install ${lockfile} --non-interactive`);
+	return clean().then((res) => {
+		return cmd('ls', { hidecmd: true }).then(str => {
+			let hasLockfile = /yarn\.lock/.test(str);
+			let promise = RSVP.resolve();
+			if (this.p.rebuild) {
+				hasLockfile = false;
+				promise = cmd('rm yarn.lock', { ignoreError: true, hidecmd: true });
+			}
+
+			return promise.then(() => {
+				let lockfile = hasLockfile ? '--pure-lockfile ' : '';
+				return cmd(`yarn install ${lockfile}--non-interactive`).then(() => {
+					if (res.hasBower) {
+						return cmd('bower install').then(() => res);
+					} else {
+						return res;
+					}
+				});
+			});
 		});
 	});
 }
