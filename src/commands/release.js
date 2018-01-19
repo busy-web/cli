@@ -19,14 +19,23 @@ const buildTypes = {
 	canary(version) { return buildType('canary', version); },
 	alpha(version) { return buildType('alpha', version); },
 	beta(version) { return buildType('beta', version); },
-	prod(version) { return `npm version ${version}`; },
+	prod(version) { 
+		if (/-/.test(version)) {
+			version = version.split('-')[0];
+			return `npm version ${version}`;
+		} else {
+			return 'npm version patch';
+		}
+	},
 	patch(version) {
 		if (/-/.test(version)) {
 			return 'npm version prerelease';
 		} else {
 			return 'npm version patch';
 		}
-	}
+	},
+	minor() { return 'npm version minor'; },
+	major() { return 'npm version major'; }
 };
 
 function getNextVersion(version) {
@@ -72,8 +81,8 @@ module.exports = createCommand({
 		if (type === 'docker' || type === 'canary' || type === 'alpha' || type === 'beta') {
 			promise = getNextVersion(version);
 		} else if (type === 'prod' || type === 'production') {
-			version = version.split('-')[0];
-			promise = RSVP.resolve({ newver: version, oldver: version });
+			type === 'prod';
+			//promise = RSVP.resolve({ newver: version, oldver: version });
 		}
 
 		let remote = 'origin';
@@ -82,14 +91,13 @@ module.exports = createCommand({
 		}
 
 		promise.then(vers => {
-			console.log(vers.newver);
 			cmd(buildTypes[type](vers.newver)).then(ver => {
 				ver = normailzeResponse(ver);
 				cmd(`git branch`, { hidecmd: true }).then(branch => {
 					branch = normailzeResponse(branch);
 					cmd(`git push ${remote} ${branch}`).then(() => {
 						cmd(`git push ${remote} --tags`).then(() => {
-							logger.info(`${ver} released to ${remote} remote!`);
+							logger.info(`${ver} released to remote ${remote}.`);
 						});
 					});
 				});
