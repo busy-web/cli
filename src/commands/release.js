@@ -52,15 +52,15 @@ module.exports = createCommand({
 		if (/-/.test(version)) {
 			mode = 'prerelease';
 		}
-		let commitMessage = "Release Candidate %s";
 
 		cmd(`npm version --no-git-tag-version ${mode}`).then(newver => {
 			newver = newver.replace(/\n/g, '');
 			cmd(`npm version --no-git-tag-version ${version}`).then(oldver => {
 				oldver = oldver.replace(/\n/g, '');
 
-				console.log('command: ', `${newver} -m "${commitMessage}"`);
-				let arg = buildTypes[type](`${newver} -m "${commitMessage}"`);
+				let commitMessage = 'Release Candidate %s';
+				console.log('command: ', `${newver} --message '${commitMessage}'`);
+				let arg = buildTypes[type](`${newver} -m '${commitMessage}'`);
 				cmd(arg).then(ver => {
 					logger.info(`Finished: version has been updated from ${oldver} to ${ver}`);
 				});
