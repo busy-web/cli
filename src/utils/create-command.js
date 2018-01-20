@@ -1,8 +1,6 @@
 
-//const Command = loader('lib/command');
-const { assert, isDefined, isArray } = loader('utils/types');
-//const logger = loader('utils/logger');
-const colors = require('colors');
+import colors from 'colors';
+import { assert, isDefined, isArray } from 'busyweb/utils/types';
 
 function parseOption(opt) {
 	let { cmd, short, desc, args, type } = opt;
@@ -19,7 +17,7 @@ function parseOption(opt) {
 	return { name, desc, type };
 }
 
-module.exports = function createCommand(opts) {
+export default function createCommand(opts) {
 	assert("createCommand takes and object <options> as a required argument", isDefined(opts) && typeof opts === 'object');
 	assert("name must exist. `opts.name = 'command name';`", isDefined(opts.name));
 	assert("args must exist as a descriptor for the type of allowed arguments. `opts.args: ['<arg1>', '<arg2>', '[options]']", isArray(opts.args));

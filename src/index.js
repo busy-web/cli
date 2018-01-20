@@ -1,54 +1,44 @@
+/**
+ * Application entry point for busyweb cli
+ *
+ */
+import application from 'busyweb/lib/application';
+import header from 'busyweb/helpers/header';
+import version from 'busyweb/helpers/version';
+import { isEmberCli } from 'busyweb/utils/ember';
+import help from 'busyweb/helpers/help';
+import manifest from 'busyweb/manifest';
 
-const path = require('path');
-const root = path.dirname(__dirname);
-const pkg = require(path.join(root, 'package.json'));
-process.__appdir = __dirname;
-process.__package = pkg;
+// get application namespace
+const app = application();
 
-const program = require('commander');
+// add busyweb namespace to process;
+process.__busyweb = app;
 
-// set program
-program.name(process.title);
-program.description('web dev cli tool for node and ember-cli');
-program.usage('busyweb <command> [options]');
-
-global.loader = require('./utils/loader')(__dirname);
-
-global.loader('utils/header')();
-global.loader('utils/version')();
-
-// load programm commands
-global.loader('utils/command-loader')(program, __dirname);
+header();
+version();
+manifest();
 
 let hasArgs = false;
 const args = process.argv.slice(2);
-program.commands.forEach(cmd => {
+app.program.commands.forEach(cmd => {
 	if (args[0] === cmd._name) {
 		hasArgs = true;
 		return;
 	}
 });
-
+	
 if (!hasArgs) {
-	const logger = loader('utils/logger');
-	const colors = require('colors');
-	program.help(function() {
-		let help = colors.white.italic("  Usage: \n");
-		help += colors.white.dim("    busyweb <command> [options]\n");
-		help += "\n";
-		help += colors.white.italic("  Example:\n");
-		help += colors.white.dim("    busyweb help => print usage information\n");
-		help += "\n";
-		help += colors.white.italic("  Commands:\n");
-
-		program.commands.forEach(cmd => {
-			help += cmd.helpInfo();
-		});
-
-		logger.write(help);
-		return '';
-	});
+	// TODO:
+	// add logic here to add a throughput channel for ember-cli commands to be ran.
+	//
+	//if (isEmberCli()) {
+	//	global.console.log('ember cli project');
+	//} else {
+	//	global.console.log('not an ember cli project');
+	//}
+	help();
 }
 
 // parse args
-program.parse(process.argv);
+app.program.parse(process.argv);

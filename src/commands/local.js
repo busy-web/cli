@@ -2,12 +2,12 @@
  * @module Commands
  * 
  */
-const RSVP = require('rsvp');
-const createCommand = loader('utils/create-command');
-const cmd = loader('utils/cmd');
-const logger = loader('utils/logger');
+import RSVP from 'rsvp';
+import createCommand from 'busyweb/utils/create-command';
+import cmd from 'busyweb/utils/cmd';
+import logger from 'busyweb/utils/logger';
 
-module.exports = createCommand({
+export default createCommand({
 	name: 'local',
 	description: 'util to help manage and maintain local dev environment',
 	alias: 'l',

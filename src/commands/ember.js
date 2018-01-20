@@ -2,11 +2,11 @@
  * @module Commands
  * 
  */
-const createCommand = loader('utils/create-command');
-const cmd = loader('utils/cmd');
-const logger = loader('utils/logger');
+import createCommand from 'busyweb/utils/create-command';
+import cmd from 'busyweb/utils/cmd';
+import logger from 'busyweb/utils/logger';
 
-module.exports = createCommand({
+export default createCommand({
 	name: 'ember',
 	description: 'check ember-cli version',
 	alias: 'e',

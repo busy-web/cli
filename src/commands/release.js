@@ -2,11 +2,11 @@
  * @module Commands
  *
  */
-const path = require('path');
-const RSVP = require('rsvp');
-const createCommand = loader('utils/create-command');
-const cmd = loader('utils/cmd');
-const logger = loader('utils/logger');
+import path from 'path';
+import RSVP from 'rsvp';
+import createCommand from 'busyweb/utils/create-command';
+import cmd from 'busyweb/utils/cmd';
+import logger from 'busyweb/utils/logger';
 
 
 	
@@ -19,6 +19,7 @@ const buildTypes = {
 	canary(version) { return buildType('canary', version); },
 	alpha(version) { return buildType('alpha', version); },
 	beta(version) { return buildType('beta', version); },
+	staging(version) { return buildType('staging', version); },
 	prod(version) { 
 		if (/-/.test(version)) {
 			version = version.split('-')[0];
@@ -57,7 +58,7 @@ function normailzeResponse(str) {
 	return str.replace(/[*\n]/g, '').trim();
 }
 
-module.exports = createCommand({
+export default createCommand({
 	name: 'release',
 	description: 'tag a new version to be released with a git tag',
 	alias: 'r',

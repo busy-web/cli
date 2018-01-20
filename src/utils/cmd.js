@@ -2,14 +2,14 @@
  * @module utils
  *
  */
-const { exec } = require('child_process');
-const RSVP = require('rsvp');
-const colors = require('colors');
-const ora = require('ora');
-const logger = loader('utils/logger');
+import { exec } from 'child_process';
+import RSVP from 'rsvp';
+import colors from 'colors';
+import ora from 'ora';
+import logger from 'busyweb/utils/logger';
 
 
-module.exports = function(arg, opts={}) {
+export default function(arg, opts={}) {
 	if (!opts.hidecmd) {
 		logger.write(colors.green('=> ') + colors.blue(arg));
 	}

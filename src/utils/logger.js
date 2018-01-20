@@ -1,5 +1,5 @@
 
-const colors = require('colors');
+import colors from 'colors';
 
 function stringify(args) {
 	let str = [];
@@ -18,9 +18,9 @@ function stringify(args) {
 	return str.join(' ');
 }
 
-module.exports = {
+export default {
 	write(...args) {
-		console.log.apply(console, args);
+		console.log.apply(console, args); // eslint-disable-line no-console
 	},
 
 	print(...args) {
