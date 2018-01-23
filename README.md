@@ -2,6 +2,12 @@
 
 Command line to for node and emberjs shorcut commands
 
+## Install
+
+```
+npm i -g @busy-web/cli
+```
+
 ## Usage
 
 #### docker config
