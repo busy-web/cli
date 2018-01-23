@@ -1,5 +1,5 @@
 {
-  "name": "@busy-web/cli",
+  "name": "cli",
   "version": "0.2.5",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
