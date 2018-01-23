@@ -7,7 +7,8 @@
     "busyweb": "./bin/busyweb.js"
   },
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+		"test": "echo \"Error: no test specified\" && exit 1"
   },
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
