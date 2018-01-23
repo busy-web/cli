@@ -62,7 +62,56 @@ exports.default = (0, _createCommand2.default)({
      */
 //import RSVP from 'rsvp';
 
-},{"/Sources/@busy-web/cli/src/utils/create-command":14}],3:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/create-command":16}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _fs = require('fs');
+
+var _fs2 = _interopRequireDefault(_fs);
+
+var _path = require('path');
+
+var _path2 = _interopRequireDefault(_path);
+
+var _resolve = require('resolve');
+
+var _resolve2 = _interopRequireDefault(_resolve);
+
+var _createCommand = require('/Sources/@busy-web/cli/src/utils/create-command');
+
+var _createCommand2 = _interopRequireDefault(_createCommand);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+//import RSVP from 'rsvp';
+//import cmd from '/Sources/@busy-web/cli/src/utils/cmd';
+//import logger from '/Sources/@busy-web/cli/src/utils/logger';
+
+/**
+ * @module Commands
+ * 
+ */
+exports.default = (0, _createCommand2.default)({
+	name: 'docker',
+	description: 'injects docker config into built ember app',
+	args: ['<action>', '<ember-setting>:<docker-setting>', '<value>'],
+
+	options: [
+		//{ cmd: '--tag', short: '-t', desc: 'checkout a tag and deploy it to the build server' }
+	],
+
+	run: function run(action, setting, value) {
+		if (action === 'config') {
+			require('./../helpers/docker-config');
+		}
+	}
+});
+
+},{"./../helpers/docker-config":8,"/Sources/@busy-web/cli/src/utils/create-command":16,"fs":undefined,"path":undefined,"resolve":undefined}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -154,7 +203,7 @@ exports.default = (0, _createCommand2.default)({
 	}
 });
 
-},{"/Sources/@busy-web/cli/src/utils/cmd":13,"/Sources/@busy-web/cli/src/utils/create-command":14,"/Sources/@busy-web/cli/src/utils/logger":16}],4:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/cmd":15,"/Sources/@busy-web/cli/src/utils/create-command":16,"/Sources/@busy-web/cli/src/utils/logger":18}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -261,7 +310,7 @@ function install() {
 	});
 }
 
-},{"/Sources/@busy-web/cli/src/utils/cmd":13,"/Sources/@busy-web/cli/src/utils/create-command":14,"/Sources/@busy-web/cli/src/utils/logger":16,"rsvp":undefined}],5:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/cmd":15,"/Sources/@busy-web/cli/src/utils/create-command":16,"/Sources/@busy-web/cli/src/utils/logger":18,"rsvp":undefined}],6:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -402,7 +451,7 @@ exports.default = (0, _createCommand2.default)({
 	}
 });
 
-},{"/Sources/@busy-web/cli/src/utils/cmd":13,"/Sources/@busy-web/cli/src/utils/create-command":14,"/Sources/@busy-web/cli/src/utils/logger":16,"path":undefined,"rsvp":undefined}],6:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/cmd":15,"/Sources/@busy-web/cli/src/utils/create-command":16,"/Sources/@busy-web/cli/src/utils/logger":18,"path":undefined,"rsvp":undefined}],7:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -458,7 +507,83 @@ exports.default = (0, _createCommand2.default)({
 	}
 });
 
-},{"/Sources/@busy-web/cli/src/utils/create-command":14,"fs":undefined,"path":undefined,"resolve":undefined}],7:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/create-command":16,"fs":undefined,"path":undefined,"resolve":undefined}],8:[function(require,module,exports){
+'use strict';
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var path = require('path');
+var fs = require('fs');
+
+function get(target, key) {
+	var args = key.split('.');
+	var value = target;
+	args.forEach(function (k) {
+		if (value[k] !== undefined) {
+			value = value[k];
+		} else {
+			return null;
+		}
+	});
+	return value;
+}
+
+function set(target, key, value) {
+	var keys = key.split('.');
+	var child = keys.pop();
+	var parent = keys.join('.');
+	var pVal = get(target, parent);
+	if (pVal && (typeof pVal === 'undefined' ? 'undefined' : _typeof(pVal)) === 'object') {
+		pVal[child] = value;
+	} else {
+		console.log(colors.red('Error: the target at path key was not found or was not an object.'));
+	}
+}
+
+var args = process.argv.slice(4);
+var cwd = process.cwd();
+var envPath = path.join(cwd, 'config/environment');
+var _module = require(envPath)().modulePrefix;
+var meta = _module + '/config/environment';
+var filePath = path.join(cwd, 'dist/index.html');
+
+fs.readFile(filePath, 'UTF-8', function (err, data) {
+	if (err) {
+		throw new Error("dist/index.html not found, run ember build <environment> first.");
+	}
+
+	var reg = new RegExp('^(((?!' + meta + ')[\\s\\S])*)(' + meta + '" content=")([^"]*)([\\s\\S]*)$', 'g');
+	var str = data.replace(reg, '$4');
+	var json = JSON.parse(unescape(str));
+
+	args.forEach(function (arg) {
+		var _arg$split = arg.split(':'),
+		    _arg$split2 = _slicedToArray(_arg$split, 2),
+		    em = _arg$split2[0],
+		    dm = _arg$split2[1];
+
+		if (process.env[dm]) {
+			if (!get(json, em)) {
+				throw new Error('Error: ' + em + ' not found in ' + envPath);
+			} else {
+				set(json, em, process.env[dm]);
+			}
+		}
+	});
+
+	var resStr = escape(JSON.stringify(json));
+	data = data.replace(reg, '$1$3' + resStr + '$5');
+	fs.writeFile(filePath, data, function (err) {
+		if (err) {
+			throw new Error(err);
+		}
+		console.log('Config settings changed!\n');
+	});
+});
+
+},{"fs":undefined,"path":undefined}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -482,7 +607,7 @@ function header() {
 	_logger2.default.write(_colors2.default.yellow(" |_____] |_____| ______|    |    |__|__| |______ |_____]"));
 }
 
-},{"/Sources/@busy-web/cli/src/utils/logger":16,"colors":undefined}],8:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/logger":18,"colors":undefined}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -522,7 +647,7 @@ function help() {
 	});
 }
 
-},{"/Sources/@busy-web/cli/src/utils/logger":16,"colors":undefined}],9:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/logger":18,"colors":undefined}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -544,7 +669,7 @@ function version() {
 	_logger2.default.write(_colors2.default.white.dim.italic(" version: " + process.__busyweb.package.version), "\n");
 }
 
-},{"/Sources/@busy-web/cli/src/utils/logger":16,"colors":undefined}],10:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/logger":18,"colors":undefined}],12:[function(require,module,exports){
 'use strict';
 
 var _application = require('/Sources/@busy-web/cli/src/lib/application');
@@ -609,7 +734,7 @@ if (!hasArgs) {
 // parse args
 app.program.parse(process.argv);
 
-},{"/Sources/@busy-web/cli/src/helpers/header":7,"/Sources/@busy-web/cli/src/helpers/help":8,"/Sources/@busy-web/cli/src/helpers/version":9,"/Sources/@busy-web/cli/src/lib/application":11,"/Sources/@busy-web/cli/src/manifest":12,"/Sources/@busy-web/cli/src/utils/ember":15}],11:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/helpers/header":9,"/Sources/@busy-web/cli/src/helpers/help":10,"/Sources/@busy-web/cli/src/helpers/version":11,"/Sources/@busy-web/cli/src/lib/application":13,"/Sources/@busy-web/cli/src/manifest":14,"/Sources/@busy-web/cli/src/utils/ember":17}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -657,7 +782,7 @@ function application() {
 	return busyweb;
 }
 
-},{"/Sources/@busy-web/cli/package.json":1,"commander":undefined}],12:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/package.json":1,"commander":undefined}],14:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -668,6 +793,10 @@ exports.default = init;
 var _deploy = require('/Sources/@busy-web/cli/src/commands/deploy');
 
 var _deploy2 = _interopRequireDefault(_deploy);
+
+var _docker = require('/Sources/@busy-web/cli/src/commands/docker');
+
+var _docker2 = _interopRequireDefault(_docker);
 
 var _ember = require('/Sources/@busy-web/cli/src/commands/ember');
 
@@ -687,7 +816,7 @@ var _template2 = _interopRequireDefault(_template);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var COMMANDS = [_deploy2.default, _ember2.default, _local2.default, _release2.default, _template2.default];
+var COMMANDS = [_deploy2.default, _docker2.default, _ember2.default, _local2.default, _release2.default, _template2.default];
 
 function init() {
 	return COMMANDS.map(function (Command) {
@@ -695,7 +824,7 @@ function init() {
 	});
 }
 
-},{"/Sources/@busy-web/cli/src/commands/deploy":2,"/Sources/@busy-web/cli/src/commands/ember":3,"/Sources/@busy-web/cli/src/commands/local":4,"/Sources/@busy-web/cli/src/commands/release":5,"/Sources/@busy-web/cli/src/commands/template":6}],13:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/commands/deploy":2,"/Sources/@busy-web/cli/src/commands/docker":3,"/Sources/@busy-web/cli/src/commands/ember":4,"/Sources/@busy-web/cli/src/commands/local":5,"/Sources/@busy-web/cli/src/commands/release":6,"/Sources/@busy-web/cli/src/commands/template":7}],15:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -753,7 +882,7 @@ var _logger2 = _interopRequireDefault(_logger);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-},{"/Sources/@busy-web/cli/src/utils/logger":16,"child_process":undefined,"colors":undefined,"ora":undefined,"rsvp":undefined}],14:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/logger":18,"child_process":undefined,"colors":undefined,"ora":undefined,"rsvp":undefined}],16:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -862,7 +991,7 @@ function createCommand(opts) {
 	};
 }
 
-},{"/Sources/@busy-web/cli/src/utils/types":17,"colors":undefined}],15:[function(require,module,exports){
+},{"/Sources/@busy-web/cli/src/utils/types":19,"colors":undefined}],17:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -893,7 +1022,7 @@ function isEmberCli() {
    * 
    */
 
-},{"path":undefined}],16:[function(require,module,exports){
+},{"path":undefined}],18:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -971,7 +1100,7 @@ exports.default = {
 	}
 };
 
-},{"colors":undefined}],17:[function(require,module,exports){
+},{"colors":undefined}],19:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -994,4 +1123,4 @@ function isArray(value) {
 	return isDefined(value) && Array.isArray(value);
 }
 
-},{}]},{},[10]);
+},{}]},{},[12]);

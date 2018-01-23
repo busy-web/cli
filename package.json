@@ -6,6 +6,9 @@
   "bin": {
     "busyweb": "./bin/busyweb"
   },
+	"scripts": {
+		"preversion": "gulp build"
+	},
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
   "author": "busy inc",
