@@ -1,14 +1,14 @@
 {
   "name": "@busy-web/cli",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
   "bin": {
     "busyweb": "./bin/busyweb"
   },
-	"scripts": {
-		"preversion": "gulp build"
-	},
+  "scripts": {
+    "preversion": "gulp build"
+  },
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
   "author": "busy inc",
