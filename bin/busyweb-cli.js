@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports={
   "name": "@busy-web/cli",
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
   "bin": {
@@ -14,19 +14,19 @@ module.exports={
   "repository": "git@github.com:busy-web/cli.git",
   "author": "busy inc",
   "license": "MIT",
+	"dependencies": {
+    "colors": "^1.1.2",
+    "commander": "^2.13.0",
+    "rsvp": "^4.7.0"
+	},
   "devDependencies": {
     "aliasify": "^2.1.0",
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
     "babelify": "^8.0.0",
     "browserify": "^15.2.0",
-    "colors": "^1.1.2",
-    "commander": "^2.13.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^7.0.0",
-    "gulp-concat": "^2.6.1",
     "ora": "^1.3.0",
-    "rsvp": "^4.7.0",
     "through": "^2.3.8",
     "vinyl-source-stream": "^2.0.0"
   }
