@@ -7,7 +7,7 @@
     "busyweb": "./bin/busyweb"
   },
   "scripts": {
-    "preversion": "gulp build"
+    "preversion": "gulp build | git commit -am 'Realease Build %s'"
   },
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
