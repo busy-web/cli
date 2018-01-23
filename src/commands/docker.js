@@ -13,8 +13,10 @@ export default createCommand({
 		//{ cmd: '--tag', short: '-t', desc: 'checkout a tag and deploy it to the build server' }
 	],
 
-	run(action, ...args) {
+	run(action) {
 		if (action === 'config') {
+			const args = arguments;
+			args.shift();
 			require('./../helpers/docker-config')(args);
 		}
 	}
