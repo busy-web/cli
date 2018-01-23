@@ -7,6 +7,9 @@ module.exports={
   "bin": {
     "busyweb": "./bin/busyweb"
   },
+	"scripts": {
+		"preversion": "gulp build"
+	},
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
   "author": "busy inc",
@@ -69,49 +72,36 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _fs = require('fs');
-
-var _fs2 = _interopRequireDefault(_fs);
-
-var _path = require('path');
-
-var _path2 = _interopRequireDefault(_path);
-
-var _resolve = require('resolve');
-
-var _resolve2 = _interopRequireDefault(_resolve);
-
 var _createCommand = require('/Sources/@busy-web/cli/src/utils/create-command');
 
 var _createCommand2 = _interopRequireDefault(_createCommand);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-//import RSVP from 'rsvp';
-//import cmd from '/Sources/@busy-web/cli/src/utils/cmd';
-//import logger from '/Sources/@busy-web/cli/src/utils/logger';
-
-/**
- * @module Commands
- * 
- */
 exports.default = (0, _createCommand2.default)({
 	name: 'docker',
 	description: 'injects docker config into built ember app',
-	args: ['<action>', '<ember-setting>:<docker-setting>', '<value>'],
+	args: ['<action>', '<ember-setting>:<docker-setting>', '...'],
 
 	options: [
 		//{ cmd: '--tag', short: '-t', desc: 'checkout a tag and deploy it to the build server' }
 	],
 
-	run: function run(action, setting, value) {
+	run: function run(action) {
 		if (action === 'config') {
-			require('./../helpers/docker-config');
+			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				args[_key - 1] = arguments[_key];
+			}
+
+			require('./../helpers/docker-config')(args);
 		}
 	}
-});
+}); /**
+     * @module Commands
+     * 
+     */
 
-},{"./../helpers/docker-config":8,"/Sources/@busy-web/cli/src/utils/create-command":16,"fs":undefined,"path":undefined,"resolve":undefined}],4:[function(require,module,exports){
+},{"./../helpers/docker-config":8,"/Sources/@busy-web/cli/src/utils/create-command":16}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -517,71 +507,73 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var path = require('path');
 var fs = require('fs');
 
-function get(target, key) {
-	var args = key.split('.');
-	var value = target;
-	args.forEach(function (k) {
-		if (value[k] !== undefined) {
-			value = value[k];
-		} else {
-			return null;
-		}
-	});
-	return value;
-}
+module.exports = function (argv) {
 
-function set(target, key, value) {
-	var keys = key.split('.');
-	var child = keys.pop();
-	var parent = keys.join('.');
-	var pVal = get(target, parent);
-	if (pVal && (typeof pVal === 'undefined' ? 'undefined' : _typeof(pVal)) === 'object') {
-		pVal[child] = value;
-	} else {
-		console.log(colors.red('Error: the target at path key was not found or was not an object.'));
-	}
-}
-
-var args = process.argv.slice(4);
-var cwd = process.cwd();
-var envPath = path.join(cwd, 'config/environment');
-var _module = require(envPath)().modulePrefix;
-var meta = _module + '/config/environment';
-var filePath = path.join(cwd, 'dist/index.html');
-
-fs.readFile(filePath, 'UTF-8', function (err, data) {
-	if (err) {
-		throw new Error("dist/index.html not found, run ember build <environment> first.");
-	}
-
-	var reg = new RegExp('^(((?!' + meta + ')[\\s\\S])*)(' + meta + '" content=")([^"]*)([\\s\\S]*)$', 'g');
-	var str = data.replace(reg, '$4');
-	var json = JSON.parse(unescape(str));
-
-	args.forEach(function (arg) {
-		var _arg$split = arg.split(':'),
-		    _arg$split2 = _slicedToArray(_arg$split, 2),
-		    em = _arg$split2[0],
-		    dm = _arg$split2[1];
-
-		if (process.env[dm]) {
-			if (!get(json, em)) {
-				throw new Error('Error: ' + em + ' not found in ' + envPath);
+	function get(target, key) {
+		var args = key.split('.');
+		var value = target;
+		args.forEach(function (k) {
+			if (value[k] !== undefined) {
+				value = value[k];
 			} else {
-				set(json, em, process.env[dm]);
+				return null;
 			}
-		}
-	});
+		});
+		return value;
+	}
 
-	var resStr = escape(JSON.stringify(json));
-	data = data.replace(reg, '$1$3' + resStr + '$5');
-	fs.writeFile(filePath, data, function (err) {
-		if (err) {
-			throw new Error(err);
+	function set(target, key, value) {
+		var keys = key.split('.');
+		var child = keys.pop();
+		var parent = keys.join('.');
+		var pVal = get(target, parent);
+		if (pVal && (typeof pVal === 'undefined' ? 'undefined' : _typeof(pVal)) === 'object') {
+			pVal[child] = value;
+		} else {
+			throw new Error('Error: the target at path key was not found or was not an object.');
 		}
-		console.log('Config settings changed!\n');
+	}
+
+	var cwd = process.cwd();
+	var envPath = path.join(cwd, 'config/environment');
+	var __module = require(envPath)().modulePrefix;
+	var meta = __module + '/config/environment'; // eslint-disable-line no-useless-escape
+	var filePath = path.join(cwd, 'dist/index.html');
+
+	fs.readFile(filePath, 'UTF-8', function (err, data) {
+		if (err) {
+			throw new Error("dist/index.html not found, run ember build <environment> first.");
+		}
+
+		var reg = new RegExp('^(((?!' + meta + ')[\\s\\S])*)(' + meta + '" content=")([^"]*)([\\s\\S]*)$', 'g');
+		var str = data.replace(reg, '$4');
+		var json = JSON.parse(unescape(str));
+
+		argv.forEach(function (arg) {
+			var _arg$split = arg.split(':'),
+			    _arg$split2 = _slicedToArray(_arg$split, 2),
+			    em = _arg$split2[0],
+			    dm = _arg$split2[1];
+
+			if (process.env[dm]) {
+				if (!get(json, em)) {
+					throw new Error('Error: ' + em + ' not found in ' + envPath);
+				} else {
+					set(json, em, process.env[dm]);
+				}
+			}
+		});
+
+		var resStr = escape(JSON.stringify(json));
+		data = data.replace(reg, '$1$3' + resStr + '$5');
+		fs.writeFile(filePath, data, function (err) {
+			if (err) {
+				throw new Error(err);
+			}
+			console.log("Config settings changed! \n"); // eslint-disable-line no-console
+		});
 	});
-});
+};
 
 },{"fs":undefined,"path":undefined}],9:[function(require,module,exports){
 'use strict';
