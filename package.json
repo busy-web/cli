@@ -1,6 +1,6 @@
 {
   "name": "@busy-web/cli",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
   "bin": {
