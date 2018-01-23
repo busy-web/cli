@@ -44,13 +44,15 @@ module.exports = function(argv) {
 		const str = data.replace(reg, '$4');
 		const json = JSON.parse(unescape(str));
 
-		argv.forEach(function(arg) {
-			let [ em, dm ] = arg.split(':');
-			if (process.env[dm]) {
-				if (!get(json, em))	{
-					throw new Error(`Error: ${em} not found in ${envPath}`);
-				} else {
-					set(json, em, process.env[dm]);
+		argv.forEach(function(arg, idx) {
+			if (arg.hasOwnProperty(idx)) {
+				let [ em, dm ] = arg.split(':');
+				if (process.env[dm]) {
+					if (!get(json, em))	{
+						throw new Error(`Error: ${em} not found in ${envPath}`);
+					} else {
+						set(json, em, process.env[dm]);
+					}
 				}
 			}
 		});

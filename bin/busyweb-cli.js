@@ -1,7 +1,7 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 module.exports={
   "name": "@busy-web/cli",
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
   "bin": {
@@ -91,8 +91,10 @@ exports.default = (0, _createCommand2.default)({
 
 	run: function run(action) {
 		if (action === 'config') {
-			var args = arguments;
-			args.shift();
+			for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+				args[_key - 1] = arguments[_key];
+			}
+
 			require('./../helpers/docker-config')(args);
 		}
 	}
@@ -549,17 +551,19 @@ module.exports = function (argv) {
 		var str = data.replace(reg, '$4');
 		var json = JSON.parse(unescape(str));
 
-		argv.forEach(function (arg) {
-			var _arg$split = arg.split(':'),
-			    _arg$split2 = _slicedToArray(_arg$split, 2),
-			    em = _arg$split2[0],
-			    dm = _arg$split2[1];
+		argv.forEach(function (arg, idx) {
+			if (arg.hasOwnProperty(idx)) {
+				var _arg$split = arg.split(':'),
+				    _arg$split2 = _slicedToArray(_arg$split, 2),
+				    em = _arg$split2[0],
+				    dm = _arg$split2[1];
 
-			if (process.env[dm]) {
-				if (!get(json, em)) {
-					throw new Error('Error: ' + em + ' not found in ' + envPath);
-				} else {
-					set(json, em, process.env[dm]);
+				if (process.env[dm]) {
+					if (!get(json, em)) {
+						throw new Error('Error: ' + em + ' not found in ' + envPath);
+					} else {
+						set(json, em, process.env[dm]);
+					}
 				}
 			}
 		});
