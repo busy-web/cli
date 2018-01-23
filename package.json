@@ -1,6 +1,6 @@
 {
   "name": "@busy-web/cli",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Command line tools to enhance web dev tasks",
   "main": "src/index.js",
   "bin": {
@@ -13,11 +13,11 @@
   "repository": "git@github.com:busy-web/cli.git",
   "author": "busy inc",
   "license": "MIT",
-	"dependencies": {
+  "dependencies": {
     "colors": "^1.1.2",
     "commander": "^2.13.0",
     "rsvp": "^4.7.0"
-	},
+  },
   "devDependencies": {
     "aliasify": "^2.1.0",
     "babel-core": "^6.26.0",
