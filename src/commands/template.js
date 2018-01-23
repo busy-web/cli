@@ -2,16 +2,16 @@
  * @module Commands
  * 
  */
-import resolve from 'resolve';
-import path from 'path';
-import fs from 'fs';
+const resolve = require('resolve');
+const path = require('path');
+const fs = require('fs');
+//const RSVP = require('rsvp');
 
-import createCommand from 'busyweb/utils/create-command';
-//import RSVP from 'rsvp';
-//import cmd from 'busyweb/utils/cmd';
-//import logger from 'busyweb/utils/logger';
+const createCommand = loader('utils/create-command');
+//const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
 
-export default createCommand({
+module.exports = createCommand({
 	name: 'template',
 	description: 'creates a new template file',
 	alias: 't',
@@ -30,7 +30,7 @@ export default createCommand({
 			}
 			const meta = require(res);
 			fs.open(path.join(file, 'file.js'), 'r+', (err, fd) => {
-				console.log('resolve', name, meta, fd);
+				logger.log('resolve', name, meta, fd);
 			});
 		});
 	}

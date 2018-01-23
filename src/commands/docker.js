@@ -2,9 +2,9 @@
  * @module Commands
  * 
  */
-import createCommand from 'busyweb/utils/create-command';
+const createCommand = loader('utils/create-command');
 
-export default createCommand({
+module.exports = createCommand({
 	name: 'docker',
 	description: 'injects docker config into built ember app',
 	args: ['<action>', '<ember-setting>:<docker-setting>', '...'],

@@ -2,10 +2,18 @@
  * @modules Lib
  *
  */
-import program from 'commander';
-import pkg from '../package.json';
+const path = require('path');
+const program = require('commander');
 
-export default function application() {
+module.exports = function application(dirname) {
+
+	const rootdir = path.dirname(dirname);
+	const cwd = process.cwd();
+
+	const loader = require('./loader')(dirname);
+	global.loader = loader;
+
+	const pkg = require(path.join(rootdir, 'package.json'));
 
 	/**
 	 * application namespace
@@ -14,13 +22,18 @@ export default function application() {
 		title: 'busyweb',
 		description: 'web dev cli tool for node and ember-cli',
 		usage: 'busyweb <command> [options]',
+
+		cwd,
+		rootdir,
+		dirname,
 		
 		debug: false,
 		
 		package: pkg,
 
 		// program instance
-		program
+		program,
+		loader
 	};
 
 	// set program app info

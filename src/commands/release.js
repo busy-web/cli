@@ -2,11 +2,11 @@
  * @module Commands
  *
  */
-import path from 'path';
-import RSVP from 'rsvp';
-import createCommand from 'busyweb/utils/create-command';
-import cmd from 'busyweb/utils/cmd';
-import logger from 'busyweb/utils/logger';
+const path = require('path');
+const RSVP = require('rsvp');
+const createCommand = loader('utils/create-command');
+const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
 
 
 	
@@ -58,7 +58,7 @@ function normailzeResponse(str) {
 	return str.replace(/[*\n]/g, '').trim();
 }
 
-export default createCommand({
+module.exports = createCommand({
 	name: 'release',
 	description: 'tag a new version to be released with a git tag',
 	alias: 'r',
@@ -87,8 +87,8 @@ export default createCommand({
 		}
 
 		let remote = 'origin';
-		if (this.p.upstream) {
-			remote = this.p.upstream;
+		if (this.program.upstream) {
+			remote = this.program.upstream;
 		}
 
 		promise.then(vers => {

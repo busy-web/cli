@@ -1,14 +1,20 @@
 
-export function assert(msg, test) {
+function assert(msg, test) {
 	if (!test) {
 		throw new Error(msg);
 	}
 }
 
-export function isDefined(value) {
+function isDefined(value) {
 	return value !== undefined && value !== null;
 }
 
-export function isArray(value) {
+function isArray(value) {
 	return isDefined(value) && Array.isArray(value);
 }
+
+module.exports = {
+	assert,
+	isDefined,
+	isArray
+};

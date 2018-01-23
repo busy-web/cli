@@ -2,14 +2,14 @@
  * @module Commands
  * 
  */
-import createCommand from 'busyweb/utils/create-command';
-import cmd from 'busyweb/utils/cmd';
-import logger from 'busyweb/utils/logger';
+const createCommand = loader('utils/create-command');
+const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
 
-export default createCommand({
+module.exports = createCommand({
 	name: 'ember',
 	description: 'check ember-cli version',
-	alias: 'e',
+	alias: 'em',
 	args: [],
 	
 	options: [
@@ -18,9 +18,9 @@ export default createCommand({
 	],
 	
 	run() {
-		cmd(`yarn ${this.p.global ? 'global list' : 'list'} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
+		cmd(`yarn ${this.program.global ? 'global list' : 'list'} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
 			if (/ember-cli@/.test(emberver)) {
-				if (!this.p.global) {
+				if (!this.program.global) {
 					emberver = JSON.parse(emberver);
 					emberver = emberver.data.trees.map(d => {
 						let [ pkg, version ] = d.name.split('@');
@@ -46,8 +46,8 @@ export default createCommand({
 							logger.info('ember-cli is up to date.');
 						} else {
 							logger.info('ember-cli is out of date. Latest version is: ' + latest);
-							if (this.p.update) {
-								cmd(`yarn ${this.p.global ? 'global add' : 'add --dev'} ember-cli`, { verbose: true });
+							if (this.program.update) {
+								cmd(`yarn ${this.program.global ? 'global add' : 'add --dev'} ember-cli`, { verbose: true });
 							}
 						}
 					});

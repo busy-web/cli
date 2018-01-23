@@ -1,6 +1,6 @@
 
-import colors from 'colors';
-import { assert, isDefined, isArray } from 'busyweb/utils/types';
+const colors = require('colors');
+const { assert, isDefined, isArray } = loader('utils/types');
 
 function parseOption(opt) {
 	let { cmd, short, desc, args, type } = opt;
@@ -17,7 +17,7 @@ function parseOption(opt) {
 	return { name, desc, type };
 }
 
-export default function createCommand(opts) {
+module.exports = function createCommand(opts) {
 	assert("createCommand takes and object <options> as a required argument", isDefined(opts) && typeof opts === 'object');
 	assert("name must exist. `opts.name = 'command name';`", isDefined(opts.name));
 	assert("args must exist as a descriptor for the type of allowed arguments. `opts.args: ['<arg1>', '<arg2>', '[options]']", isArray(opts.args));
@@ -34,6 +34,11 @@ export default function createCommand(opts) {
 
 		const cmd = `${opts.name} ${opts.args.join(' ')}`.trim();
 		prog = program.command(cmd);
+
+		if (opts.alias) {
+			prog.alias(opts.alias);
+		}
+
 		prog.description(opts.description);
 
 		opts.options.forEach(opt => {
@@ -67,7 +72,7 @@ export default function createCommand(opts) {
 			return help;
 		};
 
-		this.p = prog;
+		this.program = prog;
 		prog.action((...args) => run && run.apply(this, args));
 	}
 }

@@ -2,19 +2,19 @@
  * @module Commands
  * 
  */
-import RSVP from 'rsvp';
-import createCommand from 'busyweb/utils/create-command';
-import cmd from 'busyweb/utils/cmd';
-import logger from 'busyweb/utils/logger';
+const RSVP = require('rsvp');
+const createCommand = loader('utils/create-command');
+const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
 
-export default createCommand({
+module.exports = createCommand({
 	name: 'local',
 	description: 'util to help manage and maintain local dev environment',
 	alias: 'l',
 	args: ['<clean|update|install>'],
 	
 	options: [
-		{ cmd: '--rebuild', short: '-r', desc: 'removes the lockfile and generates a new lockfile based on current package.json' }
+		{ cmd: '--rebuild', short: '-r', desc: 'removes the lockfile and generates a new lockfile based on current package.json only on <install>' }
 	],
 	
 	run(task) {
@@ -61,7 +61,7 @@ function install() {
 		return cmd('ls', { hidecmd: true }).then(str => {
 			let hasLockfile = /yarn\.lock/.test(str);
 			let promise = RSVP.resolve();
-			if (this.p.rebuild) {
+			if (this.program.rebuild) {
 				hasLockfile = false;
 				promise = cmd('rm yarn.lock', { ignoreError: true, hidecmd: true });
 			}

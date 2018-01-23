@@ -2,22 +2,17 @@
  * Application entry point for busyweb cli
  *
  */
-import application from 'busyweb/lib/application';
-import header from 'busyweb/helpers/header';
-import version from 'busyweb/helpers/version';
-import { isEmberCli } from 'busyweb/utils/ember';
-import help from 'busyweb/helpers/help';
-import manifest from 'busyweb/manifest';
+const application = require('./lib/application');
 
 // get application namespace
-const app = application();
+const app = application(__dirname);
 
 // add busyweb namespace to process;
 process.__busyweb = app;
 
-header();
-version();
-manifest();
+loader('helpers/header')();
+loader('helpers/version')();
+loader('lib/load-commands')();
 
 let hasArgs = false;
 const args = process.argv.slice(2);
@@ -29,6 +24,7 @@ app.program.commands.forEach(cmd => {
 });
 	
 if (!hasArgs) {
+	//const { isEmberCli } = loader('utils/ember');
 	// TODO:
 	// add logic here to add a throughput channel for ember-cli commands to be ran.
 	//
@@ -37,7 +33,7 @@ if (!hasArgs) {
 	//} else {
 	//	global.console.log('not an ember cli project');
 	//}
-	help();
+	loader('helpers/help')();
 }
 
 // parse args

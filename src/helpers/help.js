@@ -1,8 +1,8 @@
 
-import colors from 'colors';
-import logger from 'busyweb/utils/logger';
+const colors = require('colors');
+const logger = loader('utils/logger');
 
-export default function help() {
+module.exports = function help() {
 	const { program } = process.__busyweb;
 	
 	program.help(function() {
