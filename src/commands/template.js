@@ -13,7 +13,7 @@ const logger = loader('utils/logger');
 
 module.exports = createCommand({
 	name: 'template',
-	description: 'creates a new template file',
+	description: 'creates a new template file. (not supported yet)',
 	alias: 't',
 	args: ['<type>', '<name>'],
 	

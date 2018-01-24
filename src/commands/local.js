@@ -9,9 +9,9 @@ const logger = loader('utils/logger');
 
 module.exports = createCommand({
 	name: 'local',
-	description: 'util to help manage and maintain local dev environment',
+	description: 'util to help manage and maintain local dev environment. ARGS task: [ clean | update | install ]',
 	alias: 'l',
-	args: ['<clean|update|install>'],
+	args: ['<task>'],
 	
 	options: [
 		{ cmd: '--rebuild', short: '-r', desc: 'removes the lockfile and generates a new lockfile based on current package.json only on <install>' }

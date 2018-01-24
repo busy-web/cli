@@ -13,18 +13,18 @@ npm i -g @busy-web/cli
 <!--START_DOCS-->
 
 ### Usage: 
-#### busyweb <command> [options]
+#### busyweb &lsaquo;command&rsaquo; [options]
 
 ### Example:
-#### busyweb help => print usage information
+#### busyweb help =&rsaquo; print usage information
 
 ### Commands:
-#### deploy <docker|canary|alpha|beta|staging|prod|production>
-    deploy build to server
+#### deploy &lsaquo;build&rsaquo;
+    deploy build to server. ARGS build: [ docker | canary | alpha | beta | staging | prod | production ] ( not supported yet )
     Alias: d
     Options:
 
-#### docker <action> <ember-setting>:<docker-setting> ...
+#### docker config &lsaquo;EMBER_CONFIG.PATH:DOCKER_ENV&rsaquo; [...]
     injects docker config into built ember app
     Options:
 
@@ -35,21 +35,21 @@ npm i -g @busy-web/cli
       -g, --global use global ember install
       -u, --update update ember if its out of date
 
-#### local <clean|update|install>
-    util to help manage and maintain local dev environment
+#### local &lsaquo;task&rsaquo;
+    util to help manage and maintain local dev environment. ARGS task: [ clean | update | install ]
     Alias: l
     Options:
-      -r, --rebuild removes the lockfile and generates a new lockfile based on current package.json only on <install>
+      -r, --rebuild removes the lockfile and generates a new lockfile based on current package.json only on &lsaquo;install&rsaquo;
 
-#### release <patch|docker|canary|alpha|beta|prod>
-    tag a new version to be released with a git tag
+#### release &lsaquo;type&rsaquo;
+    tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]
     Alias: r
     Options:
       -l, --local prevents tag from pushing to upstream remote
-      -u, --upstream <name> upstream remote name to push release tags, default: origin
+      -u, --upstream &lsaquo;name&rsaquo; upstream remote name to push release tags, default: origin
 
-#### template <type> <name>
-    creates a new template file
+#### template &lsaquo;type&rsaquo; &lsaquo;name&rsaquo;
+    creates a new template file. (not supported yet)
     Alias: t
     Options:
       -d, --delete deletes a template file

@@ -12,14 +12,16 @@ const logger = loader('utils/logger');
 cmd('node bin/busy-web help').then(data => {
 	logger.info('Starting Documentaion Generation...');
 
+	data = data.replace(/</g, '&lsaquo;').replace(/>/g, '&rsaquo;'); // eslint-disable-line no-useless-escape
+
 	let args = data.split('\n');
 	args = args.slice(5);
 
 	let docs = '';
 	args.forEach(line => {
-		line = line.replace(/  /g, '>');
+		line = line.replace(/[ ]{2}/g, '>');
 		if (/^>>>>/.test(line)) {
-			line = line.replace(/^>>>>/g, '      ');;
+			line = line.replace(/^>>>>/g, '      ');
 		} else if (/^>>>/.test(line)) {
 			line = line.replace(/^>>>/g, '    ');
 		} else if (/^>>/.test(line)) {
@@ -34,7 +36,6 @@ cmd('node bin/busy-web help').then(data => {
 
 	fs.readFile('./README.md', 'UTF-8', function(err, fin) {
 		if (err) {
-			console.log('error', err);
 			throw new Error(err);
 		}
 

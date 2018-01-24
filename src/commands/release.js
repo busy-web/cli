@@ -60,9 +60,9 @@ function normailzeResponse(str) {
 
 module.exports = createCommand({
 	name: 'release',
-	description: 'tag a new version to be released with a git tag',
+	description: 'tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]',
 	alias: 'r',
-	args: ['<patch|docker|canary|alpha|beta|prod>'],
+	args: ['<type>'],
 	
 	options: [
 		{ cmd: '--local', short: '-l', desc: 'prevents tag from pushing to upstream remote' },
