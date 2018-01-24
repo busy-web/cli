@@ -25,9 +25,9 @@ cmd('node bin/busy-web help').then(data => {
 		} else if (/^>>>/.test(line)) {
 			line = line.replace(/^>>>/g, '    ');
 		} else if (/^>>/.test(line)) {
-			line = line.replace(/^>>/g, '#### ');
+			line = line.replace(/^>>/g, '##### ');
 		} else if (/^>/.test(line)) {
-			line = line.replace(/^>/g, "### "); + "\n"
+			line = line.replace(/^>/g, "#### "); + "\n"
 		}
 		docs += line + "\n";
 	});
