@@ -61,5 +61,5 @@ npm i -g @busy-web/cli
 
 Contributions are welcome. 
 1. Fork the repo and make the desired changes. 
-2. run `yarn run docs` to regenerate readme file.
+2. `yarn run docs` to regenerate readme file.
 3. Then submit a PR request for review. 
