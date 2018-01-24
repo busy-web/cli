@@ -31,11 +31,11 @@ module.exports = function(argv) {
 
 	const cwd = process.cwd();
 	const meta = `config\/environment`; // eslint-disable-line no-useless-escape
-	const filePath = path.join(cwd, 'dist/index.html');
+	const filePath = path.join(cwd, 'index.html');
 
 	fs.readFile(filePath, 'UTF-8', (err, data) => {
 		if (err) {
-			throw new Error("dist/index.html not found, run ember build <environment> first.");
+			throw new Error("index.html not found, run ember build <environment> first.");
 		}
 
 		const reg = new RegExp(`^(((?!${meta})[\\s\\S])*)(${meta}" content=")([^"]*)([\\s\\S]*)$`, 'g');
