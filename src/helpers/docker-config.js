@@ -30,9 +30,7 @@ module.exports = function(argv) {
 	}
 
 	const cwd = process.cwd();
-	const envPath = path.join(cwd, 'config/environment');
-	const __module = require(envPath)().modulePrefix;
-	const meta = `${__module}\/config\/environment`; // eslint-disable-line no-useless-escape
+	const meta = `config\/environment`; // eslint-disable-line no-useless-escape
 	const filePath = path.join(cwd, 'dist/index.html');
 
 	fs.readFile(filePath, 'UTF-8', (err, data) => {
@@ -49,7 +47,7 @@ module.exports = function(argv) {
 				let [ em, dm ] = arg.split(':');
 				if (process.env[dm]) {
 					if (!get(json, em))	{
-						throw new Error(`Error: ${em} not found in ${envPath}`);
+						throw new Error(`Error: ${em} not found in application config`);
 					} else {
 						set(json, em, process.env[dm]);
 					}
