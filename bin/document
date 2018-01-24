@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+'use strict';
+
+const path = require('path');
+const fs = require('fs');
+const loader = require('../src/lib/loader')(path.join(path.dirname(__dirname), 'src'));
+global.loader = loader;
+
+const cmd = loader('utils/cmd');
+const logger = loader('utils/logger');
+
+cmd('node bin/busy-web help').then(data => {
+	logger.info('Starting Documentaion Generation...');
+
+	let args = data.split('\n');
+	args = args.slice(5);
+
+	let docs = '';
+	args.forEach(line => {
+		line = line.replace(/  /g, '>');
+		if (/^>>>>/.test(line)) {
+			line = line.replace(/^>>>>/g, '      ');;
+		} else if (/^>>>/.test(line)) {
+			line = line.replace(/^>>>/g, '    ');
+		} else if (/^>>/.test(line)) {
+			line = line.replace(/^>>/g, '#### ');
+		} else if (/^>/.test(line)) {
+			line = line.replace(/^>/g, "### "); + "\n"
+		}
+		docs += line + "\n";
+	});
+
+	docs = docs.replace(/\n$/, '');
+
+	fs.readFile('./README.md', 'UTF-8', function(err, fin) {
+		if (err) {
+			console.log('error', err);
+			throw new Error(err);
+		}
+
+		let fout = fin.replace(/((?!<!--START_DOCS-->)[\s\S]*)(<!--START_DOCS-->)((?!<!--END_DOCS-->)[\s\S]*)(<!--END_DOCS-->)([\s\S]*)/, `$1$2\n\n${docs}$4$5`);
+		fs.writeFile('./README.md', fout, function(err) {
+			if (err) {
+				throw new Error(err);
+			}
+
+			logger.info('Documentation Generated!');
+		});
+	});
+});

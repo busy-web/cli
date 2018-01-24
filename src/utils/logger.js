@@ -28,7 +28,7 @@ module.exports = {
 	},
 
 	log(...args) {
-		this.write(colors.grey(stringify(args)));
+		this.write(colors.white.dim(stringify(args)));
 	},
 
 	info(...args) {
