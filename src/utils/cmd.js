@@ -40,11 +40,11 @@ module.exports = function(arg, opts={}) {
 		if (opts.allowInput) {
 			proc.stdout.pipe(process.stdout);
 			process.stdin.pipe(proc.stdin);
-			proc.stdout.on('close', (code) => {
-				console.log('closing child process', code);
+			proc.stdout.on('close', function() {
+				//console.log('closing child process', code, proc, this);
 				process.stdin.resume();
-				debugger;
-				//proc.disconnect();
+				//debugger;
+				//process.kill(proc.pid, 'SIGINT');
 			});
 		}
 
