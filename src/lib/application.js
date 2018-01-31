@@ -10,9 +10,6 @@ module.exports = function application(dirname) {
 	const rootdir = path.dirname(dirname);
 	const cwd = process.cwd();
 
-	const loader = require('./loader')(dirname);
-	global.loader = loader;
-
 	const pkg = require(path.join(rootdir, 'package.json'));
 
 	/**

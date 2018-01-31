@@ -49,6 +49,10 @@ module.exports = function createCommand(opts) {
 		prog.helpInfo = function() {
 			let help = colors.blue('    ' + opts.name + ' ' + colors.italic(opts.args.join(' ')) + "\n");
 
+			if (opts.deprecated) {
+				help += colors.red("      DEPRECATED: ") + colors.red.italic(opts.deprecated + "\n");
+			}
+
 			if (opts.description && opts.description.length) {
 				help += '      ' + colors.white.dim(opts.description) + "\n";
 			}
@@ -57,17 +61,20 @@ module.exports = function createCommand(opts) {
 				help += colors.blue(colors.yellow.italic(`      Alias: ${opts.alias}`)) + "\n";
 			}
 
-			help += colors.yellow.italic('      Options:') + "\n";
-			opts.options.forEach(opt => {
-				let { name, desc } = parseOption(opt);
-				if (desc && desc.length) {
-					desc = ' ' + colors.white.dim(desc);
-				} else {
-					desc = '';
-				}
+			if (opts.options && opts.options.length) {
+				help += colors.yellow.italic('      Options:') + "\n";
+				opts.options.forEach(opt => {
+					let { name, desc } = parseOption(opt);
+					if (desc && desc.length) {
+						desc = ' ' + colors.white.dim(desc);
+					} else {
+						desc = '';
+					}
 
-				help += '        ' + colors.green(name) + desc + "\n";
-			});
+					help += '        ' + colors.green(name) + desc + "\n";
+				});
+			}
+
 			help += "\n";
 			return help;
 		};

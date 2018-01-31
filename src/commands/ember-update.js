@@ -7,18 +7,20 @@ const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');
 
 module.exports = createCommand({
-	name: 'ember',
-	description: 'check ember-cli version',
-	alias: 'em',
-	args: [],
+	name: 'ember:update',
+	description: 'update ember-cli locally or globally',
+	alias: 'em:up',
+	args: ['[version]'],
 	
 	options: [
-		{ cmd: '--global', short: '-g', desc: 'use global ember install' },
-		{ cmd: '--update', short: '-u', desc: 'update ember if its out of date' }
+		{ cmd: '--global', short: '-g', desc: 'update global ember install' },
+		{ cmd: '--dry', short: '-d', desc: 'performs a dry run where no update will be performed' },
 	],
 	
-	run() {
-		cmd(`yarn ${this.program.global ? 'global list' : 'list'} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
+	run(version) {
+		version = version && version.length ? `@${version}` : '';
+		let list = this.program.global ? 'global list' : 'list';
+		cmd(`yarn ${list} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
 			if (/ember-cli@/.test(emberver)) {
 				if (!this.program.global) {
 					emberver = JSON.parse(emberver);
@@ -46,8 +48,9 @@ module.exports = createCommand({
 							logger.info('ember-cli is up to date.');
 						} else {
 							logger.info('ember-cli is out of date. Latest version is: ' + latest);
-							if (this.program.update) {
-								cmd(`yarn ${this.program.global ? 'global add' : 'add --dev'} ember-cli`, { verbose: true });
+							if (!this.program.dry) {
+								let add = this.program.global ? 'global add' : 'add --dev';
+								cmd(`yarn ${add} ember-cli${version}`, { verbose: true });
 							}
 						}
 					});

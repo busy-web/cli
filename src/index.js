@@ -2,7 +2,10 @@
  * Application entry point for busyweb cli
  *
  */
-const application = require('./lib/application');
+const path = require('path');
+require('./initializer');
+
+const application = loader('lib/application');
 
 // get application namespace
 const app = application(__dirname);
@@ -17,12 +20,12 @@ loader('lib/load-commands')();
 let hasArgs = false;
 const args = process.argv.slice(2);
 app.program.commands.forEach(cmd => {
-	if (args[0] === cmd._name) {
+	if (args[0] === cmd._name || args[0] === cmd._alias) {
 		hasArgs = true;
 		return;
 	}
 });
-	
+
 if (!hasArgs) {
 	//const { isEmberCli } = loader('utils/ember');
 	// TODO:
@@ -36,5 +39,8 @@ if (!hasArgs) {
 	loader('helpers/help')();
 }
 
+const argv = process.argv;
+argv[1] = path.join(__dirname, 'scripts', 'bw');
+
 // parse args
-app.program.parse(process.argv);
+app.program.parse(argv);

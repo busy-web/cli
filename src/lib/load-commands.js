@@ -5,7 +5,9 @@ const path = require('path');
 module.exports = function() {
 	const commands = [];
 	fs.readdirSync(path.join(process.__busyweb.dirname, 'commands')).forEach(function(file) {
-		const Command = require(path.join(process.__busyweb.dirname, 'commands', file));
+		let Command = require(path.join(process.__busyweb.dirname, 'commands', file));
+		Command = Command.default || Command;
+
 		if (typeof Command === 'function') {
 			commands.push(new Command(process.__busyweb.program));
 		}

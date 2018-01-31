@@ -14,8 +14,20 @@ module.exports = function help() {
 		help += "\n";
 		help += colors.white.italic("  Commands:\n");
 
-		program.commands.forEach(cmd => {
-			help += cmd.helpInfo();
+		let cmds = program.commands.sort((a, b) => {
+			if (a._name > b._name) {
+				return 1;
+			} else if (a._name < b._name) {
+				return -1;
+			} else {
+				return 0;
+			}
+		});
+
+		cmds.forEach(cmd => {
+			if (cmd && cmd.helpInfo) {
+				help += cmd.helpInfo();
+			}
 		});
 
 		logger.write(help);

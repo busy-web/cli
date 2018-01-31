@@ -14,11 +14,18 @@ module.exports = function(arg, opts={}) {
 		logger.write(colors.green('=> ') + colors.blue(arg));
 	}
 
-	const spinner = ora('running', { color: 'blue' });
-	spinner.start();
+	let spinner;
+	if (!opts.allowInput) {
+		spinner = ora('running', { color: 'blue' });
+		spinner.start();
+	}
+
 	return new RSVP.Promise(resolve => {
 		const proc = exec(arg, (err, stdout, stderr) => {
-			spinner.stop();
+			if (spinner) {
+				spinner.stop();
+			}
+
 			if (err) {
 				if (!opts.ignoreError) {
 					throw new Error(stderr);
@@ -29,6 +36,17 @@ module.exports = function(arg, opts={}) {
 				resolve(stdout);
 			}
 		});
+
+		if (opts.allowInput) {
+			proc.stdout.pipe(process.stdout);
+			process.stdin.pipe(proc.stdin);
+			proc.stdout.on('close', (code) => {
+				console.log('closing child process', code);
+				process.stdin.resume();
+				debugger;
+				//proc.disconnect();
+			});
+		}
 
 		if (opts.verbose) {
 			proc.stdout.on('data', data => {
