@@ -25,7 +25,7 @@ cmd('node bin/busy-web help').then(data => {
 		} else if (/^>>>/.test(line)) {
 			line = line.replace(/^>>>/g, '    ');
 		} else if (/^>>/.test(line)) {
-			line = line.replace(/</g, '&lsaquo;').replace(/>/g, '&rsaquo;'); // eslint-disable-line no-useless-escape
+			line = line.replace(/<([^>]*)>/g, '&lsaquo;$1&rsaquo;'); //.replace(/>([^>]|\n)/g, '&rsaquo;$1'); // eslint-disable-line no-useless-escape
 			line = line.replace(/^>>/g, '##### ');
 		} else if (/^>/.test(line)) {
 			line = line.replace(/^>/g, "#### "); + "\n"
