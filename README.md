@@ -13,16 +13,16 @@ npm i -g @busy-web/cli
 <!--START_DOCS-->
 
 #### Usage: 
-##### busyweb &lsaquo;command&rsaquo; [options]
+##### busyweb <command> [options]
 
 #### OPTIONS:
 ##### -b, --boring Hide title and version information and remove empty new lines
 
 #### Example:
-##### busyweb help =&rsaquo; print usage information
+##### busyweb help => print usage information
 
 #### Commands:
-##### deploy &lsaquo;build&rsaquo;
+##### deploy <build>
     deploy build to server. ARGS build: [ docker | canary | alpha | beta | staging | prod | production ] ( not supported yet )
     Alias: d
 
@@ -34,7 +34,7 @@ npm i -g @busy-web/cli
     clean project install fresh packages
     Alias: dev:i
     Options:
-      -r, --rebuild removes the lockfile and generates a new lockfile based on current package.json only on &lsaquo;install&rsaquo;
+      -r, --rebuild removes the lockfile and generates a new lockfile based on current package.json only on <install>
 
 ##### dev:update 
     install missing packages
@@ -44,7 +44,7 @@ npm i -g @busy-web/cli
     update packages and regenerate yarn.lock file
     Alias: dev:u
 
-##### docker &lsaquo;config&rsaquo; &lsaquo;EMBER_CONFIG.PATH:DOCKER_ENV...&rsaquo;
+##### docker <config> <EMBER_CONFIG.PATH:DOCKER_ENV...>
     DEPRECATED: Please use `env:config` inplace of `docker config`
     injects docker config into built ember app
 
@@ -61,22 +61,22 @@ npm i -g @busy-web/cli
       -g, --global update global ember install
       -d, --dry performs a dry run where no update will be performed
 
-##### env:config &lsaquo;EMBER_CONFIG.PATH:ENV_VAR...&rsaquo;
+##### env:config <EMBER_CONFIG.PATH:ENV_VAR...>
     injects ENV variables into and ember app config/environment
     Alias: env:c
     Options:
-      -p, --path &lsaquo;path&rsaquo; path/to/folder where file config changes are. ( default: Current Working Directory )
-      -f, --file &lsaquo;name&rsaquo; filename to replace config settings for. ( default: index.html )
+      -p, --path <path> path/to/folder where file config changes are. ( default: Current Working Directory )
+      -f, --file <name> filename to replace config settings for. ( default: index.html )
       -r, --require throw error if config or ENV settings do not exist. ( default: false )
 
-##### release &lsaquo;type&rsaquo;
+##### release <type>
     tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]
     Alias: r
     Options:
       -l, --local prevents tag from pushing to upstream remote
-      -u, --upstream &lsaquo;name&rsaquo; upstream remote name to push release tags, default: origin
+      -u, --upstream <name> upstream remote name to push release tags, default: origin
 
-##### template &lsaquo;type&rsaquo; &lsaquo;name&rsaquo;
+##### template <type> <name>
     creates a new template file. (not supported yet)
     Alias: t
     Options:

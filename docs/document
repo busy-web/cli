@@ -12,7 +12,7 @@ const logger = loader('utils/logger');
 cmd('node bin/busy-web help').then(data => {
 	logger.info('Starting Documentaion Generation...');
 
-	data = data.replace(/</g, '&lsaquo;').replace(/>/g, '&rsaquo;'); // eslint-disable-line no-useless-escape
+	//data = data.replace(/</g, '&lsaquo;').replace(/>/g, '&rsaquo;'); // eslint-disable-line no-useless-escape
 
 	let args = data.split('\n');
 	args = args.slice(5);
