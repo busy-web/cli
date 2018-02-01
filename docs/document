@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 'use strict';
 
-const path = require('path');
 const fs = require('fs');
-const loader = require('../src/lib/loader')(path.join(path.dirname(__dirname), 'src'));
-global.loader = loader;
+require('../src/initializer');
+
+process.__busyweb = { boring: false };
 
 const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');

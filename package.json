@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "doc": "./bin/document"
+    "doc": "./docs/document"
   },
   "preferGlobal": true,
   "repository": "git@github.com:busy-web/cli.git",
