@@ -6,7 +6,7 @@ const cmd = loader('utils/cmd');
 const createCommand = loader('utils/create-command');
 
 function upgrade() {
-	return cmd('yarn upgrade-interactive');
+	return cmd('yarn upgrade-interactive', { allowInput: true }).then(() => "Upgrade complete!");
 }
 
 const Command = createCommand({

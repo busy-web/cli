@@ -6,7 +6,7 @@ const cmd = loader('utils/cmd');
 const createCommand = loader('utils/create-command');
 
 function update() {
-	return cmd('yarn install --silent --pure-lockfile');
+	return cmd('yarn install --silent --pure-lockfile').then(() => "Update complete!");
 }
 
 const Command = createCommand({

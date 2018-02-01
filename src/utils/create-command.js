@@ -48,9 +48,8 @@ module.exports = function createCommand(opts) {
 
 		prog.helpInfo = function() {
 			let help = colors.blue('    ' + opts.name + ' ' + colors.italic(opts.args.join(' ')) + "\n");
-
 			if (opts.deprecated) {
-				help += colors.red("      DEPRECATED: ") + colors.red.italic(opts.deprecated + "\n");
+				help += "      " + colors.bgYellow.gray("DEPRECATED: ") + colors.bgYellow.gray.italic(opts.deprecated) + "\n";
 			}
 
 			if (opts.description && opts.description.length) {
@@ -75,11 +74,20 @@ module.exports = function createCommand(opts) {
 				});
 			}
 
-			help += "\n";
+			help += (process.__busyweb.boring) ? "" : "\n"
 			return help;
 		};
 
 		this.program = prog;
-		prog.action((...args) => run && run.apply(this, args));
+		prog.action((...args) => {
+			if (run) {
+				let res = run.apply(this, args);
+				if (res && res.then) {
+					process.__busyweb.runPromise = res;
+				} else {
+					process.__busyweb.runResult = res;
+				}
+			}
+		});
 	}
 }

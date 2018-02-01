@@ -13,10 +13,10 @@ function clean() {
 				return cmd('ls -al', { hidecmd: true }).then(str => {
 					if (/\.bowerrc/.test(str)) {
 						return cmd('rm -rf bower_components', { ignoreError: true }).then(() => {
-							return cmd('bower cache clean').then(() => ({ hasBower: true }));
+							return cmd('bower cache clean').then(() => ({ hasBower: true, message: "Cleanup complete!" }));
 						});
 					} else {
-						return RSVP.resolve({ hasBower: false });
+						return RSVP.resolve({ hasBower: false, message: "Cleanup complete!" });
 					}
 				});
 			});

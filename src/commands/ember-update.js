@@ -2,6 +2,7 @@
  * @module Commands
  * 
  */
+const RSVP = require('rsvp');
 const createCommand = loader('utils/create-command');
 const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');
@@ -20,7 +21,7 @@ module.exports = createCommand({
 	run(version) {
 		version = version && version.length ? `@${version}` : '';
 		let list = this.program.global ? 'global list' : 'list';
-		cmd(`yarn ${list} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
+		return cmd(`yarn ${list} --depth=0 --pattern ember-cli --no-progress --json`).then((emberver) => {
 			if (/ember-cli@/.test(emberver)) {
 				if (!this.program.global) {
 					emberver = JSON.parse(emberver);
@@ -41,22 +42,25 @@ module.exports = createCommand({
 				}
 
 				if (emberver && emberver.version) {
-					cmd('yarn info ember-cli version').then(latest => {
+					return cmd('yarn info ember-cli version').then(latest => {
 						latest = latest.split('\n');
 						latest = latest[1];
 						if (emberver.version === latest) {
-							logger.info('ember-cli is up to date.');
+							return RSVP.resolve('ember-cli is up to date.');
 						} else {
 							logger.info('ember-cli is out of date. Latest version is: ' + latest);
 							if (!this.program.dry) {
+								logger.info('Updating ember-cli...');
 								let add = this.program.global ? 'global add' : 'add --dev';
-								cmd(`yarn ${add} ember-cli${version}`, { verbose: true });
+								return cmd(`yarn ${add} ember-cli${version}`, { verbose: true }).then(() => "ember-cli updated!");
+							} else {
+								return RSVP.resolve('ember-cli not updated. Run with out --dry to update ember-cli');
 							}
 						}
 					});
 				}
 			} else {
-				logger.error("ember-cli is not installed locally");
+				return RSVP.reject("ember-cli is not installed locally");
 			}
 		});
 	}

@@ -30,13 +30,19 @@ module.exports = function application(dirname) {
 
 		// program instance
 		program,
-		loader
+		loader,
+
+		runPromise: null
 	};
 
 	// set program app info
 	program.name(busyweb.title);
 	program.description(busyweb.description);
 	program.usage(busyweb.usage);
-	
+	program.option('-b, --boring', 'Hide title and version information and remove empty new lines');
+
+	let boring = process.argv.find(val => val === '-b' || val === '--boring');
+	busyweb.boring = (boring !== undefined && boring !== null);
+
 	return busyweb;
 }

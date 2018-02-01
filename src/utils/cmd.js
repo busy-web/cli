@@ -2,14 +2,13 @@
  * @module utils
  *
  */
-const { exec } = require('child_process');
+const { exec, spawn } = require('child_process');
 const RSVP = require('rsvp');
 const colors = require('colors');
 const ora = require('ora');
 const logger = loader('utils/logger');
 
-
-module.exports = function(arg, opts={}) {
+module.exports = function cmd(arg, opts={}) {
 	if (!opts.hidecmd) {
 		logger.write(colors.green('=> ') + colors.blue(arg));
 	}
@@ -19,39 +18,45 @@ module.exports = function(arg, opts={}) {
 		spinner = ora('running', { color: 'blue' });
 		spinner.start();
 	}
-
-	return new RSVP.Promise(resolve => {
-		const proc = exec(arg, (err, stdout, stderr) => {
-			if (spinner) {
-				spinner.stop();
-			}
-
-			if (err) {
-				if (!opts.ignoreError) {
-					throw new Error(stderr);
-				} else if (process.debug) {
-					logger.err(err, stdout);
-				}
-			} else {
-				resolve(stdout);
-			}
-		});
-
+	
+	return new RSVP.Promise((resolve, reject) => {
 		if (opts.allowInput) {
-			proc.stdout.pipe(process.stdout);
-			process.stdin.pipe(proc.stdin);
-			proc.stdout.on('close', function() {
-				//console.log('closing child process', code, proc, this);
-				process.stdin.resume();
-				//debugger;
-				//process.kill(proc.pid, 'SIGINT');
-			});
-		}
+			let args = arg.split(' ');
+			let primary = args.shift();
 
-		if (opts.verbose) {
-			proc.stdout.on('data', data => {
-				logger.print(data);
+			// create child process to run the cmd.
+			const child = spawn(primary, args, { stdio: 'inherit' });
+
+			child.on('close', () => {
+				resolve();
 			});
+			
+			child.on('error', err => {
+				logger.error('child error', err);
+				reject(err);
+			});
+		} else {
+			// create child process to run the cmd.
+			const child = exec(arg, { }, (err, stdout, stderr) => {
+				if (spinner) { spinner.stop(); }
+
+				if (err && opts.ignoreError) {
+					logger.error(err, stderr);
+				} else if (err) {
+					// TODO: add check for `process.debug` before logger
+					logger.error(stderr);
+					reject(err);
+				} else {
+					resolve(stdout);
+				}
+			});
+			
+			if (opts.verbose) {
+				child.stdout.on('data', data => {
+					logger.print(data);
+				});
+			}
 		}
 	});
 }
+

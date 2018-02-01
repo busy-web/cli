@@ -12,7 +12,7 @@ function install() {
 		return cmd('ls', { hidecmd: true }).then(str => {
 			let hasLockfile = /yarn\.lock/.test(str);
 			let promise = RSVP.resolve();
-			if (this.program.rebuild) {
+			if (this.program.rebuild && hasLockfile) {
 				hasLockfile = false;
 				promise = cmd('rm yarn.lock', { ignoreError: true, hidecmd: true });
 			}
@@ -21,9 +21,9 @@ function install() {
 				let lockfile = hasLockfile ? '--pure-lockfile ' : '';
 				return cmd(`yarn install ${lockfile}--silent`).then(() => {
 					if (res.hasBower) {
-						return cmd('bower install').then(() => res);
+						return cmd('bower install').then(() => "Install completed!");
 					} else {
-						return res;
+						return "Install completed!";
 					}
 				});
 			});

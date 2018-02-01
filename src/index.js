@@ -3,6 +3,7 @@
  *
  */
 const path = require('path');
+const colors = require('colors');
 require('./initializer');
 
 const application = loader('lib/application');
@@ -44,3 +45,29 @@ argv[1] = path.join(__dirname, 'scripts', 'bw');
 
 // parse args
 app.program.parse(argv);
+
+function exit(code) {
+	let msg = colors.green('OK');
+	if (code !== 0) {
+		msg = colors.red('FAIL');
+	}
+
+	logger.write(process.__busyweb.boring ? "" : "\n", colors.yellow("< EXIT:"), msg, colors.yellow(">"));
+	process.exit(code);
+}
+
+const logger = loader('utils/logger');
+if (process.__busyweb.runPromise) {
+	process.__busyweb.runPromise.then((res) => {
+		logger.info(res && (res.message || res));
+		exit(0);
+	}).catch(err => {
+		logger.error(err);
+		exit(1);
+	});
+} else {
+	if (process.__busyweb.runResult) {
+		logger.info(process.__busyweb.runResult);
+	}
+	exit(0);
+}

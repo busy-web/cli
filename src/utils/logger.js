@@ -24,23 +24,23 @@ module.exports = {
 	},
 
 	print(...args) {
-		this.write(colors.cyan(stringify(args)));
+		this.write(colors.green('  =>'), colors.cyan(stringify(args)));
 	},
 
 	log(...args) {
-		this.write(colors.white.dim(stringify(args)));
+		this.write(colors.green('  =>'), colors.white.dim(stringify(args)));
 	},
 
 	info(...args) {
-		this.write("\n", colors.green(stringify(args)));
+		this.write(process.__busyweb.boring ? "" : "\n", colors.green(' =>'), colors.blue(stringify(args)));
 	},
 
 	warn(...args) {
-		this.write("\n", colors.yellow(stringify(args)));
+		this.write(process.__busyweb.boring ? "" : "\n", colors.yellow(' =>'), colors.yellow(stringify(args)));
 	},
 
 	error(...args) {
-		args.unshift("ERROR: ");
-		this.write("\n", colors.red(stringify(args)));
+		args.unshift("ERROR:");
+		this.write(process.__busyweb.boring ? "" : "\n", colors.red(' =>'), colors.red(stringify(args)));
 	}
 };
