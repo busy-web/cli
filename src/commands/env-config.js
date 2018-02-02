@@ -15,6 +15,7 @@ module.exports = {
 			{ cmd: '--path <path>', short: '-p', desc: 'path/to/folder where file config changes are. ( default: Current Working Directory )' },
 			{ cmd: '--file <name>', short: '-f', desc: 'filename to replace config settings for. ( default: index.html )' },
 			{ cmd: '--require', short: '-r', desc: 'throw error if config or ENV settings do not exist. ( default: false )' },
+			{ cmd: '--allow-null', short: '-an', desc: 'allow null values to be set from ENV to APP config' }
 		],
 		run: config
 	}),

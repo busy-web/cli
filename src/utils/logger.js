@@ -23,24 +23,27 @@ module.exports = {
 		console.log.apply(console, args); // eslint-disable-line no-console
 	},
 
-	print(...args) {
-		this.write(colors.green('  =>'), colors.cyan(stringify(args)));
-	},
-
 	log(...args) {
-		this.write(colors.green('  =>'), colors.white.dim(stringify(args)));
+		this.write(colors.magenta(' => Log:'), stringify(args));
+	},
+	
+	debug(...args) {
+		this.write(colors.cyan(' => Debug:'), stringify(args));
+	},
+	
+	subinfo(...args) {
+		this.write(colors.green('     =>'), colors.cyan(stringify(args)));
 	},
 
 	info(...args) {
-		this.write(process.__busyweb.boring ? "" : "\n", colors.green(' =>'), colors.blue(stringify(args)));
+		this.write(colors.green(' =>'), colors.blue(stringify(args)));
 	},
 
 	warn(...args) {
-		this.write(process.__busyweb.boring ? "" : "\n", colors.yellow(' =>'), colors.yellow(stringify(args)));
+		this.write(colors.yellow(' => Warning:'), stringify(args));
 	},
 
 	error(...args) {
-		args.unshift("ERROR:");
-		this.write(process.__busyweb.boring ? "" : "\n", colors.red(' =>'), colors.red(stringify(args)));
+		this.write(colors.red(' => Error:'), stringify(args));
 	}
 };

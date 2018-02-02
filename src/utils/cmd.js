@@ -4,13 +4,12 @@
  */
 const { exec, spawn } = require('child_process');
 const RSVP = require('rsvp');
-const colors = require('colors');
 const ora = require('ora');
 const logger = loader('utils/logger');
 
 module.exports = function cmd(arg, opts={}) {
 	if (!opts.hidecmd) {
-		logger.write(colors.green('=> ') + colors.blue(arg));
+		logger.info(arg);
 	}
 
 	let spinner;
@@ -20,40 +19,42 @@ module.exports = function cmd(arg, opts={}) {
 	}
 	
 	return new RSVP.Promise((resolve, reject) => {
-		if (opts.allowInput) {
-			let args = arg.split(' ');
-			let primary = args.shift();
-
-			// create child process to run the cmd.
+		if (opts.allowInput) { 
+			let [ primary, ...args ] = arg.split(' ');
+			
+			// create child process to run the cmd and allow ui input
 			const child = spawn(primary, args, { stdio: 'inherit' });
 
-			child.on('close', () => {
-				resolve();
-			});
-			
+			// regieter on close event to resolve promise
+			child.on('close', () => resolve());
+
+			// register error event to reject promise
 			child.on('error', err => {
-				logger.error('child error', err);
+				if (process.__busyweb.debug) {
+					logger.debug('[ CMDERR ]', err);
+				}
 				reject(err);
 			});
 		} else {
-			// create child process to run the cmd.
+			// create child process to run the cmd with callback for promises
 			const child = exec(arg, { }, (err, stdout, stderr) => {
 				if (spinner) { spinner.stop(); }
 
 				if (err && opts.ignoreError) {
 					logger.error(err, stderr);
 				} else if (err) {
-					// TODO: add check for `process.debug` before logger
-					logger.error(stderr);
+					if (process.__busyweb.debug) {
+						logger.debug('[ CMDERR ]', stderr);
+					}
 					reject(err);
 				} else {
 					resolve(stdout);
 				}
 			});
 			
-			if (opts.verbose) {
+			if (opts.verbose || process.__busyweb.debug) {
 				child.stdout.on('data', data => {
-					logger.print(data);
+					logger.subinfo(data);
 				});
 			}
 		}

@@ -39,10 +39,14 @@ module.exports = function application(dirname) {
 	program.name(busyweb.title);
 	program.description(busyweb.description);
 	program.usage(busyweb.usage);
-	program.option('-b, --boring', 'Hide title and version information and remove empty new lines');
+	program.option('--boring', 'Hide title and version information and remove empty new lines');
+	program.option('--debug', 'Turn debug mode on');
 
 	let boring = process.argv.find(val => val === '-b' || val === '--boring');
 	busyweb.boring = (boring !== undefined && boring !== null);
+	
+	let debug = process.argv.find(val => val === '-b' || val === '--debug');
+	busyweb.debug = (debug !== undefined && debug !== null);
 
 	return busyweb;
 }

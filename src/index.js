@@ -14,10 +14,16 @@ const app = application(__dirname);
 // add busyweb namespace to process;
 process.__busyweb = app;
 
+// load header
 loader('helpers/header')();
+
+// load version
 loader('helpers/version')();
+
+// load commands
 loader('lib/load-commands')();
 
+// validata args
 let hasArgs = false;
 const args = process.argv.slice(2);
 app.program.commands.forEach(cmd => {
@@ -27,35 +33,33 @@ app.program.commands.forEach(cmd => {
 	}
 });
 
+// show help if non valid args found
 if (!hasArgs) {
-	//const { isEmberCli } = loader('utils/ember');
-	// TODO:
-	// add logic here to add a throughput channel for ember-cli commands to be ran.
-	//
-	//if (isEmberCli()) {
-	//	global.console.log('ember cli project');
-	//} else {
-	//	global.console.log('not an ember cli project');
-	//}
 	loader('helpers/help')();
 }
 
+// fix arg1 bin argument for loaded scripts
 const argv = process.argv;
 argv[1] = path.join(__dirname, 'scripts', 'bw');
 
 // parse args
 app.program.parse(argv);
 
+/**
+ * helper method for shutting down program
+ *
+ */
 function exit(code) {
-	let msg = colors.green('OK');
+	let msg = colors.green('[ OK ]');
 	if (code !== 0) {
-		msg = colors.red('FAIL');
+		msg = colors.red('[ FAIL ]');
 	}
 
-	logger.write(process.__busyweb.boring ? "" : "\n", colors.yellow("< EXIT:"), msg, colors.yellow(">"));
+	logger.write(process.__busyweb.boring ? "" : "\n", msg, colors.yellow("busy-web finished"), "\n");
 	process.exit(code);
 }
 
+// Log command results and exit program
 const logger = loader('utils/logger');
 if (process.__busyweb.runPromise) {
 	process.__busyweb.runPromise.then((res) => {
