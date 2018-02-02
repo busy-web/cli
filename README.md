@@ -16,7 +16,8 @@ npm i -g @busy-web/cli
 ##### busyweb &lsaquo;command&rsaquo; [options]
 
 #### OPTIONS:
-##### -b, --boring Hide title and version information and remove empty new lines
+##### --boring Hide title and version information and remove empty new lines
+##### --debug Turn debug mode on
 
 #### Example:
 ##### busyweb help => print usage information
@@ -68,6 +69,7 @@ npm i -g @busy-web/cli
       -p, --path <path> path/to/folder where file config changes are. ( default: Current Working Directory )
       -f, --file <name> filename to replace config settings for. ( default: index.html )
       -r, --require throw error if config or ENV settings do not exist. ( default: false )
+      -an, --allow-null allow null values to be set from ENV to APP config
 
 ##### release &lsaquo;type&rsaquo;
     tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]
