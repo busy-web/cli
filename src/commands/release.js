@@ -69,6 +69,24 @@ function normalizeType(type) {
 	return type;
 }
 
+function savePackageInfo(version) {
+	let pj = read('package.json').then(data => {
+		console.log('data', typeof data);
+		let dout = JSON.parse(data);
+		dout.version = version;
+		return write('package.json', JSON.stringify(dout));
+	});
+
+	let pv = read('public/version.json').then(data => {
+		let dout = JSON.parse(data);
+		dout.version = version;
+		return write('public/version.json', JSON.stringify(dout));
+	}).catch(() => RSVP.resolve());
+
+	return RSVP.hash({ pj, pv });
+}
+
+
 module.exports = createCommand({
 	name: 'release',
 	description: 'tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]',
@@ -97,9 +115,8 @@ module.exports = createCommand({
 			// normalize version info
 			ver = normailzeResponse(ver);
 
-			return read('package.json').then(data => {
-				console.log('data', data, JSON.parse(data));
-
+			console.log('ver', ver);
+			return savePackageInfo(ver).then(() => {
 				// return here if local param was passed.
 				if (this.program.local) {
 					return RSVP.resolve(`Release version: ${ver} has been created, but has not been pushed to any remote.`);
