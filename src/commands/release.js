@@ -8,6 +8,7 @@ const createCommand = loader('utils/create-command');
 const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');
 const { isEmpty } = loader('utils/types');
+const { read, write } = loader('utils/file-io');
 //const { get } = loader('utils/object');
 
 function isValidType(type) {
@@ -27,6 +28,7 @@ function versionCommand(program, type) {
 }
 
 function buildVersionCmd(program, type, version) {
+	logger.log('version', version);
 	if (type === 'patch' && /-/.test(version)) {
 		type === 'prerelease';
 	}
@@ -44,6 +46,7 @@ function buildVersionCmd(program, type, version) {
 			}
 		} else {
 			let typeRegex = new RegExp(type);
+			console.log('type', type, typeRegex, typeVer, typeRegex.test(typeVer));
 			if (!typeRegex.test(typeVer)) {
 				return versionCommand(program, `${baseVer}-${type}.0`);
 			} else {
@@ -88,35 +91,35 @@ module.exports = createCommand({
 
 		// create version command to run.
 		const vercmd = buildVersionCmd(this.program, type, version);
-		if (process.__busyweb.debug) {
-			logger.debug('running cmd:', vercmd);
-		}
 
 		// create new npm version string
 		return cmd(vercmd).then(ver => {
-			if (process.__busyweb.debug) {
-				logger.debug("version updated: ", ver);
-			}
 			// normalize version info
 			ver = normailzeResponse(ver);
-			return cmd(`git branch`, { hidecmd: true }).then(branch => {
+
+			return read('package.json').then(data => {
+				console.log('data', data, JSON.parse(data));
+
 				// return here if local param was passed.
 				if (this.program.local) {
 					return RSVP.resolve(`Release version: ${ver} has been created, but has not been pushed to any remote.`);
 				}
-				// normalize branch name
-				branch = normailzeResponse(branch);
 
-				// get remote name
-				let remote = 'origin';
-				if (this.program.upstream) {
-					remote = this.program.upstream;
-				}
+				return cmd(`git branch`, { hidecmd: true }).then(branch => {
+					// normalize branch name
+					branch = normailzeResponse(branch);
 
-				// push the remote tag and branch data
-				return cmd(`git push ${remote} ${branch}`).then(() => {
-					return cmd(`git push ${remote} --tags`).then(() => {
-						return RSVP.resolve(`Release version: ${ver} has been created and pushed to remote ${remote}.`);
+					// get remote name
+					let remote = 'origin';
+					if (this.program.upstream) {
+						remote = this.program.upstream;
+					}
+
+					// push the remote tag and branch data
+					return cmd(`git push ${remote} ${branch}`).then(() => {
+						return cmd(`git push ${remote} --tags`).then(() => {
+							return RSVP.resolve(`Release version: ${ver} has been created and pushed to remote ${remote}.`);
+						});
 					});
 				});
 			});
