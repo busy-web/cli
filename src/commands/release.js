@@ -11,57 +11,27 @@ const { isEmpty } = loader('utils/types');
 const { read, write } = loader('utils/file-io');
 //const { get } = loader('utils/object');
 
-function isValidType(type) {
-	return /^(patch|prerelease|v?[0-9]+\.[0-9]+\.[0-9]+[\s\S]*)$/.test(type);
+/**
+ * check to see if the version fits the valid standards
+ *
+ */
+function isValidTag(type) {
+	return /^v?[0-9]+\.[0-9]+\.[0-9]+[\s\S]*$/.test(type);
 }
 
-function versionCommand(program, type) {
-	if (!isValidType(type)) {
-		throw new Error(`type is not valid [ ${type} ]`);
-	}
-
-	let cmd = 'npm version';
-	if (program.noTag) {
-		cmd += ' --no-git-tag-version';
-	}
-	return cmd + ' ' + type;
-}
-
-function buildVersionCmd(program, type, version) {
-	const isPreTag = /-/.test(version);
-	logger.log('version', version, isPreTag);
-	if (type === 'major' || type === 'minor' || (isPreTag && type === 'patch') || (!isPreTag && type === 'prerelease')) {
-		let ver = getNextVersion(type, version);
-		let [ baseVer ] = ver.split('-');
-		return versionCommand(program, `${baseVer}-dev.0`);
-	} else {
-		if (isValidType(type)) {
-			return versionCommand(program, type);
-		} else {
-			// split version into a base version and a type version
-			let [ baseVer, typeVer ] = version.split('-');
-			if (type === 'prod') {  // production version tags
-				if (isEmpty(typeVer)) { // if there is no type version then the format is correct and its just a patch call
-					return versionCommand(program, 'patch');
-				} else { // remove the type version info and create a tag with the base version info
-					return versionCommand(program, baseVer);
-				}
-			} else {
-				let typeRegex = new RegExp(type);
-				if (!typeRegex.test(typeVer)) {
-					return versionCommand(program, `${baseVer}-${type}.0`);
-				} else {
-					return versionCommand(program, 'prerelease');
-				}
-			}
-		}
-	}
-}
-
+/**
+ * trim any extra space and lines off the version
+ * returned from the npm version cmd
+ *
+ */
 function normailzeResponse(str) {
 	return str.replace(/[*\n]/g, '').trim();
 }
 
+/**
+ * normalize the build type string
+ *
+ */
 function normalizeType(type) {
 	if (type === 'production') {
 		type === 'prod';
@@ -71,6 +41,11 @@ function normalizeType(type) {
 	return type;
 }
 
+/**
+ * save the new version to the public/version.json file
+ * if it exists
+ *
+ */
 function savePackageInfo(version) {
 	version = version.slice(1);
 	return read('public/version.json').then(data => {
@@ -80,6 +55,11 @@ function savePackageInfo(version) {
 	}).catch(() => RSVP.resolve());
 }
 
+/**
+ * increment the current version to get
+ * the next version based on the build type
+ *
+ */
 function getNextVersion(build, version) {
 	let [ baseVer, typeVer ] = version.split('-');
 	if (build === 'prerelease') {
@@ -88,14 +68,100 @@ function getNextVersion(build, version) {
 		typeVer = vers.join('.');
 	} else {
 		let vers = baseVer.split('.');
-		let idx = (build === 'major' ? 0 : (build === 'minor' ? 1 : 2));
-		vers[idx] = parseInt(vers[idx]) + 1;
-		baseVer = vers.join('.');
+		if (build === 'major') {
+			baseVer = [ (parseInt(vers[0]) + 1), 0, 0 ].join('.');
+		} else if (build === 'minor') {
+			baseVer = [ vers[0], (parseInt(vers[1]) + 1), 0 ].join('.');
+		} else {
+			baseVer = [ vers[0], vers[1], (parseInt(vers[2]) + 1) ].join('.');
+		}
 	}
 	return [ baseVer, typeVer ].join('-');
 }
 
+/**
+ * build a version update call npm call
+ *
+ * this call differs from the regular npm version call, it follows the following rules:
+ *	- major: 
+ *			creates a new major version with prerelease dev									--- 0.0.1						=>	1.0.0-dev.0
+ *	
+ *	- minor: 
+ *			creates a new minor version with prerelease dev									--- 0.0.1						=>	0.1.0-dev.0
+ *	
+ *	- patch: 
+ *			creates a new patch version when version is not in prerelease		--- 0.0.1						=>	0.0.2
+ *			or increments the prerelease version														--- 0.0.1-dev.0			=>	0.0.1-dev.1
+ *	
+ *	- prerelease: 
+ *			creates a new prerelease version																--- 0.0.1-dev.0			=>	0.0.1-dev.1
+ *
+ *	- <types>: 
+ *			create a type specific prerelease																--- 0.0.1						=>	0.0.1.<type>.0
+ *			change a type specific prerelease to another prerelease					--- 0.0.1.dev.0			=>	0.0.1.<type>.0
+ *			increments a type specific prerelease														--- 0.0.1.<type>.0	=>	0.0.1.<type>.1
+ *
+ * @private
+ * @method getAction
+ * @param type {string} the version comand action
+ * @param version {string} the current version of the cwd project
+ * @return {string} npm version command to run.
+ */
+function getAction(type, version) {
+	if (isValidTag(type)) {
+		return type;
+	} else {
+		const isPreTag = /-/.test(version);
+		logger.log('version', version, isPreTag);
+		if (type === 'major' || type === 'minor' || type === 'patch' || type === 'prerelease') { // block major and minor calls
+			if (!isPreTag && type === 'patch') { 
+			// normal patch version call
+				return 'patch';
+			} else if (isPreTag && type === 'prerelease') { 
+				// normal prerelease version call
+				return 'prerelease';
+			} else {
+				// prevent patch calls when in prerelease mode
+				if (type === 'patch') { 
+					type === 'prerelease'; 
+				}
 
+				let ver = getNextVersion(type, version);
+				let [ baseVer ] = ver.split('-');
+				// create new version command from version
+				return `${baseVer}-dev.0`;
+			}
+		} else {
+			// split version into a base version and a type version
+			let [ baseVer, typeVer ] = version.split('-');
+			if (type === 'prod') {  
+				// production version tags
+				if (isEmpty(typeVer)) { 
+					// if there is no type version then the format is correct and its just a patch call
+					return 'patch';
+				} else { 
+					// remove the type version info and create a tag with the base version info
+					return baseVer;
+				}
+			} else {
+				let typeRegex = new RegExp(type);
+				if (!typeRegex.test(typeVer)) {
+					// craete version type
+					return `${baseVer}-${type}.0`;
+				} else {
+					// increment prerelease version
+					return 'prerelease';
+				}
+			}
+		}
+	}
+}
+
+
+/**
+ * command class
+ *
+ */
 module.exports = createCommand({
 	name: 'release',
 	description: 'tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]',
@@ -116,8 +182,14 @@ module.exports = createCommand({
 		// normalize type string
 		type = normalizeType(type);
 
-		// create version command to run.
-		const vercmd = buildVersionCmd(this.program, type, version);
+		// create npm version command
+		let vercmd = 'npm version';
+		if (this.program.noTag) {
+			vercmd += ' --no-git-tag-version';
+		}
+		
+		// add version action
+		vercmd += getAction(type, version);
 
 		// create new npm version string
 		return cmd(vercmd).then(ver => {
