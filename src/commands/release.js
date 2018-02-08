@@ -7,37 +7,33 @@ const RSVP = require('rsvp');
 const createCommand = loader('utils/create-command');
 const cmd = loader('utils/cmd');
 const logger = loader('utils/logger');
+const { isDefined } = loader('utils/types');
+const { get } = loader('utils/object');
 
 
-	
-function buildType(release, version) {
-	return `npm version ${version}-${release}.1`;
-}
+const PRE_DEF_BUILD = {
+	patch(version) { return (/-/.test(version) ? 'npm version prerelease' : 'npm version patch'); },
+	minor() { return 'npm version --no-git-tag-version minor'; },
+	major() { return 'npm version --no-git-tag-version major'; },
 
-const buildTypes = {
-	docker(version) { return buildType('dev', version); },
-	canary(version) { return buildType('canary', version); },
-	alpha(version) { return buildType('alpha', version); },
-	beta(version) { return buildType('beta', version); },
-	staging(version) { return buildType('staging', version); },
 	prod(version) { 
+		let cmd = 'npm version patch';
 		if (/-/.test(version)) {
 			version = version.split('-')[0];
-			return `npm version ${version}`;
-		} else {
-			return 'npm version patch';
+			cmd = `npm version ${version}`;
 		}
-	},
-	patch(version) {
-		if (/-/.test(version)) {
-			return 'npm version prerelease';
-		} else {
-			return 'npm version patch';
-		}
-	},
-	minor() { return 'npm version --no-git-tag-version minor'; },
-	major() { return 'npm version --no-git-tag-version major'; }
+		return cmd;
+	}
 };
+
+function buildType(build, version) {
+	// check if build is predefined
+	if (isDefined(get(PRE_DEF_BUILD, build))) {
+		return get(PRE_DEF_BUILD, build)(version)
+	} else { // else return custom build name
+		return `npm version ${version}-${build}.1`;
+	}
+}
 
 function getNextVersion(version) {
 	let mode = 'patch';
@@ -70,10 +66,6 @@ module.exports = createCommand({
 	],
 	
 	run(type) {
-		if (!buildTypes[type]) {
-			logger.error(`build type not found [${type}] valid types are '${Object.keys(buildTypes).join('|')}'`);
-			return;
-		}
 
 		const cwd = process.cwd();
 		let pkgInfo = require(path.join(cwd + '/package.json'));
@@ -92,7 +84,7 @@ module.exports = createCommand({
 		}
 
 		promise.then(vers => {
-			cmd(buildTypes[type](vers.newver)).then(ver => {
+			cmd().then(ver => {
 				ver = normailzeResponse(ver);
 				cmd(`git branch`, { hidecmd: true }).then(branch => {
 					branch = normailzeResponse(branch);
