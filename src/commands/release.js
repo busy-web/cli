@@ -73,7 +73,7 @@ function savePackageInfo(version) {
 	version = version.slice(1);
 	let pj = read('package.json').then(data => {
 		console.log('data', data);
-		data = data.replace(/^((?!version)[\s\S])*(version": ?")([^"]*)"([\s\S]*)$/, `$1$2${version}"$4`);
+		data = data.replace(/^((?!version)[\s\S]*)(version":) ?"([^"]*)"([\s\S]*)$/, `$1$2 "${version}"$4`);
 		console.log('data', data);
 		//return write('package.json', data);
 	});
