@@ -12,7 +12,7 @@ const { read, write } = loader('utils/file-io');
 //const { get } = loader('utils/object');
 
 function isValidType(type) {
-	return /^(major|minor|patch|prerelease|v?[0-9]+\.[0-9]+\.[0-9]+[\s\S]*)$/.test(type);
+	return /^(patch|prerelease|v?[0-9]+\.[0-9]+\.[0-9]+[\s\S]*)$/.test(type);
 }
 
 function versionCommand(program, type) {
@@ -36,21 +36,27 @@ function buildVersionCmd(program, type, version) {
 	if (isValidType(type)) {
 		return versionCommand(program, type);
 	} else {
-		// split version into a base version and a type version
-		let [ baseVer, typeVer ] = version.split('-');
-		if (type === 'prod') {  // production version tags
-			if (isEmpty(typeVer)) { // if there is no type version then the format is correct and its just a patch call
-				return versionCommand(program, 'patch');
-			} else { // remove the type version info and create a tag with the base version info
-				return versionCommand(program, baseVer);
-			}
+		if (type === 'minor' || type === 'major') {
+			let ver = getNextVersion(type, version);
+			let [ baseVer ] = ver.split('-');
+			return versionCommand(program, `${baseVer}-dev.0`);
 		} else {
-			let typeRegex = new RegExp(type);
-			console.log('type', type, typeRegex, typeVer, typeRegex.test(typeVer));
-			if (!typeRegex.test(typeVer)) {
-				return versionCommand(program, `${baseVer}-${type}.0`);
+			// split version into a base version and a type version
+			let [ baseVer, typeVer ] = version.split('-');
+			if (type === 'prod') {  // production version tags
+				if (isEmpty(typeVer)) { // if there is no type version then the format is correct and its just a patch call
+					return versionCommand(program, 'patch');
+				} else { // remove the type version info and create a tag with the base version info
+					return versionCommand(program, baseVer);
+				}
 			} else {
-				return versionCommand(program, 'prerelease');
+				let typeRegex = new RegExp(type);
+				console.log('type', type, typeRegex, typeVer, typeRegex.test(typeVer));
+				if (!typeRegex.test(typeVer)) {
+					return versionCommand(program, `${baseVer}-${type}.0`);
+				} else {
+					return versionCommand(program, 'prerelease');
+				}
 			}
 		}
 	}
@@ -71,18 +77,26 @@ function normalizeType(type) {
 
 function savePackageInfo(version) {
 	version = version.slice(1);
-	//let pj = read('package.json').then(data => {
-	//	console.log('data', data);
-	//	data = data.replace(/^((?!version)[\s\S]*)(version":) ?"([^"]*)"([\s\S]*)$/, `$1$2 "${version}"$4`);
-	//	console.log('data', data);
-	//	//return write('package.json', data);
-	//});
-
 	return read('public/version.json').then(data => {
 		let dout = JSON.parse(data);
 		dout.version = version;
 		return write('public/version.json', JSON.stringify(dout));
 	}).catch(() => RSVP.resolve());
+}
+
+function getNextVersion(build, version) {
+	let [ baseVer, typeVer ] = version.split('-');
+	if (build === 'prerelease') {
+		let vers = typeVer.split('.');
+		vers[1] = parseInt(vers[1]) + 1;
+		typeVer = vers.join('.');
+	} else {
+		let vers = baseVer.split('.');
+		let idx = (build === 'major' ? 0 : (build === 'minor' ? 1 : 2));
+		vers[idx] = parseInt(vers[idx]) + 1;
+		baseVer = vers.join('.');
+	}
+	return [ baseVer, typeVer ].join('-');
 }
 
 
