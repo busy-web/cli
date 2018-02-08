@@ -71,19 +71,18 @@ function normalizeType(type) {
 
 function savePackageInfo(version) {
 	let pj = read('package.json').then(data => {
-		console.log('data', typeof data);
-		let dout = JSON.parse(data);
-		dout.version = version;
-		return write('package.json', JSON.stringify(dout));
+		console.log('data', data);
+		data = data.replace(/^((?!version)[\s\S])*(version": ?")([^"]*)"([\s\S]*)$/, `$1$3${version}"$5`);
+		return write('package.json', data);
 	});
 
-	let pv = read('public/version.json').then(data => {
-		let dout = JSON.parse(data);
-		dout.version = version;
-		return write('public/version.json', JSON.stringify(dout));
-	}).catch(() => RSVP.resolve());
+	//let pv = read('public/version.json').then(data => {
+	//	let dout = JSON.parse(data);
+	//	dout.version = version;
+	//	return write('public/version.json', JSON.stringify(dout));
+	//}).catch(() => RSVP.resolve());
 
-	return RSVP.hash({ pj, pv });
+	return RSVP.hash({ pj/*, pv*/ });
 }
 
 
