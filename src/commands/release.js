@@ -70,10 +70,12 @@ function normalizeType(type) {
 }
 
 function savePackageInfo(version) {
+	version = version.slice(1);
 	let pj = read('package.json').then(data => {
 		console.log('data', data);
 		data = data.replace(/^((?!version)[\s\S])*(version": ?")([^"]*)"([\s\S]*)$/, `$1$3${version}"$5`);
-		return write('package.json', data);
+		console.log('data', data);
+		//return write('package.json', data);
 	});
 
 	//let pv = read('public/version.json').then(data => {
