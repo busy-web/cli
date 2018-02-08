@@ -183,9 +183,9 @@ module.exports = createCommand({
 		type = normalizeType(type);
 
 		// create npm version command
-		let vercmd = 'npm version';
+		let vercmd = 'npm version ';
 		if (this.program.noTag) {
-			vercmd += ' --no-git-tag-version';
+			vercmd += '--no-git-tag-version ';
 		}
 		
 		// add version action
