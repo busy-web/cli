@@ -28,18 +28,15 @@ function versionCommand(program, type) {
 }
 
 function buildVersionCmd(program, type, version) {
-	logger.log('version', version);
-	if (type === 'patch' && /-/.test(version)) {
-		type === 'prerelease';
-	}
-
-	if (isValidType(type)) {
-		return versionCommand(program, type);
+	const isPreTag = /-/.test(version);
+	logger.log('version', version, isPreTag);
+	if (type === 'major' || type === 'minor' || (isPreTag && type === 'patch') || (!isPreTag && type === 'prerelease')) {
+		let ver = getNextVersion(type, version);
+		let [ baseVer ] = ver.split('-');
+		return versionCommand(program, `${baseVer}-dev.0`);
 	} else {
-		if (type === 'minor' || type === 'major') {
-			let ver = getNextVersion(type, version);
-			let [ baseVer ] = ver.split('-');
-			return versionCommand(program, `${baseVer}-dev.0`);
+		if (isValidType(type)) {
+			return versionCommand(program, type);
 		} else {
 			// split version into a base version and a type version
 			let [ baseVer, typeVer ] = version.split('-');
@@ -51,7 +48,6 @@ function buildVersionCmd(program, type, version) {
 				}
 			} else {
 				let typeRegex = new RegExp(type);
-				console.log('type', type, typeRegex, typeVer, typeRegex.test(typeVer));
 				if (!typeRegex.test(typeVer)) {
 					return versionCommand(program, `${baseVer}-${type}.0`);
 				} else {
@@ -128,7 +124,7 @@ module.exports = createCommand({
 			// normalize version info
 			ver = normailzeResponse(ver);
 
-			console.log('ver', ver);
+			logger.log('ver', ver);
 			return savePackageInfo(ver).then(() => {
 				// return here if local param was passed.
 				if (this.program.local) {
