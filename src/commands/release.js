@@ -112,7 +112,6 @@ function getAction(type, version) {
 		return type;
 	} else {
 		const isPreTag = /-/.test(version);
-		logger.log('version', version, isPreTag);
 		if (type === 'major' || type === 'minor' || type === 'patch' || type === 'prerelease') { // block major and minor calls
 			if (!isPreTag && type === 'patch') { 
 			// normal patch version call
@@ -157,6 +156,49 @@ function getAction(type, version) {
 	}
 }
 
+function getRemote() {
+	let remote = false;
+	if (this.program.tag) { 
+		// get tag flag
+		remote = typeof this.program.tag === 'string' ? this.program.tag : 'origin';
+	} else if (this.program.push) { 
+		// get push flag
+		remote = typeof this.program.push === 'string' ? this.program.push : 'origin';
+	}
+	return remote;
+}
+
+function tagVersion(remote, version) {
+	if (this.program.noCommit || !this.program.tag) {
+		return RSVP.resolve(`Skipping tag`);
+	}
+	// create and push the new tag
+	return cmd(`git tag -a ${version} -m "Release Version: ${version}"`, { hidecmd: true }).then(() => {
+		return cmd(`git push ${remote} --tags`, { hidecmd: true }).then(() => `Tagged new release ${remote}/${version}`);
+	});
+}
+
+function pushVersion(remote) {
+	if (this.program.noCommit || (!this.program.tag && !this.program.push)) {
+		return RSVP.resolve(`Skipping push`);
+	}
+	// get the branch name to push to 
+	return cmd(`git branch`, { hidecmd: true }).then(branch => {
+		// normalize branch name
+		branch = normailzeResponse(branch);
+		// push the remote tag and branch data
+		return cmd(`git push ${remote} ${branch}`, { hidecmd: true }).then(() => `Pushed to ${remote}/${branch}`);
+	});
+}
+
+function commitVersion(version) {
+	if (this.program.noCommit) {
+		return RSVP.resolve(`Skipping commit`);
+	}
+	// commit new version release
+	return cmd(`git commit -am "Release Version: ${version}"`, { hidecmd: true }).then(() => `Created release commit`);
+}
+
 
 /**
  * command class
@@ -169,54 +211,48 @@ module.exports = createCommand({
 	args: ['<type>'],
 	
 	options: [
-		{ cmd: '--no-tag', desc: 'prevent version from creating git tag' },
-		{ cmd: '--local', short: '-l', desc: 'prevents tag from pushing to upstream remote' },
-		{ cmd: '--upstream', short: '-u', args: ['<name>'], desc: 'upstream remote name to push release tags, default: origin' }
+		{ cmd: '--no-commit', desc: 'prevent version from committing and creating a new tag' },
+		{ cmd: '--tag', short: '-t', args: [ '[name]' ], desc: 'tag the version and push to remote [name], default: origin' },
+		{ cmd: '--push', short: '-p', args: [ '[name]' ], desc: 'push changes to remote [name], default: origin' }
 	],
-	
+
 	run(type) {
 		const cwd = process.cwd();
+		const remote = getRemote.call(this);
 		let pkgInfo = require(path.join(cwd + '/package.json'));
 		let version = pkgInfo.version;
-		
+
 		// normalize type string
 		type = normalizeType(type);
 
 		// create npm version command
-		let vercmd = 'npm version ';
-		if (this.program.noTag) {
-			vercmd += '--no-git-tag-version ';
-		}
-		
+		let vercmd = 'npm version --no-git-tag-version ';
+
 		// add version action
 		vercmd += getAction(type, version);
 
 		// create new npm version string
-		return cmd(vercmd).then(ver => {
+		return cmd(vercmd, { hidecmd: true }).then(ver => {
 			// normalize version info
 			ver = normailzeResponse(ver);
+			logger.info(`Version created: ${ver}`);
 
-			logger.log('ver', ver);
+			// save new version in public/version.json if project has one
 			return savePackageInfo(ver).then(() => {
-				// return here if local param was passed.
-				if (this.program.local) {
-					return RSVP.resolve(`Release version: ${ver} has been created, but has not been pushed to any remote.`);
-				}
 
-				return cmd(`git branch`, { hidecmd: true }).then(branch => {
-					// normalize branch name
-					branch = normailzeResponse(branch);
+				// commit version info.
+				return commitVersion.call(this, ver).then(commitRes => {
+					logger.info(commitRes);
 
-					// get remote name
-					let remote = 'origin';
-					if (this.program.upstream) {
-						remote = this.program.upstream;
-					}
+					// tag promise has either pushed a tag or skipped it.
+					return tagVersion.call(this, remote, ver).then(tagRes => {
+						logger.info(tagRes);
 
-					// push the remote tag and branch data
-					return cmd(`git push ${remote} ${branch}`).then(() => {
-						return cmd(`git push ${remote} --tags`).then(() => {
-							return RSVP.resolve(`Release version: ${ver} has been created and pushed to remote ${remote}.`);
+						// push or skip pushing to remote branch
+						return pushVersion.call(this, remote).then(pushRes => {
+							logger.info(pushRes);
+
+							return RSVP.resolve(`Release version ${ver} finished!`);
 						});
 					});
 				});

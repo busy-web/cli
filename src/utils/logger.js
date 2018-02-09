@@ -26,11 +26,11 @@ module.exports = {
 	log(...args) {
 		this.write(colors.magenta(' => Log:'), stringify(args));
 	},
-	
+
 	debug(...args) {
 		this.write(colors.cyan(' => Debug:'), stringify(args));
 	},
-	
+
 	subinfo(...args) {
 		this.write(colors.green('     =>'), colors.cyan(stringify(args)));
 	},
