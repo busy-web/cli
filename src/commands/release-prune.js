@@ -44,6 +44,9 @@ function getLastNum(version) {
 }
 
 function versionCompare(aList, bList, idx) {
+	if (aList.length > bList.length) return -1;
+	if (bList.length > aList.length) return 1;
+
 	let a = aList[idx];
 	let b = bList[idx];
 	if (a === undefined && b === undefined) return 0; // a and b are equal
