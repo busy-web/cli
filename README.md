@@ -75,8 +75,19 @@ npm i -g @busy-web/cli
     tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]
     Alias: r
     Options:
-      -l, --local prevents tag from pushing to upstream remote
-      -u, --upstream <name> upstream remote name to push release tags, default: origin
+      -undefined, --no-commit prevent version from committing and creating a new tag
+      -t, --tag [name] tag the version and push to remote [name], default: origin
+      -p, --push [name] push changes to remote [name], default: origin
+
+##### release:prune &lsaquo;version&rsaquo; [type]
+    Prune a release type by version
+    Alias: r:p
+    Options:
+      -undefined, --dry shows the tags that would be deleted but doesnt do anything
+      -a, --all delete all tags matching the version and type
+      -m, --mod <number> mod number to prune the tags with, default: 5
+      -r, --remote [name] flag to prune remote tags for [name], default: origin
+      -p, --prod production tags can only be deleted with --prod option applied.
 
 ##### template &lsaquo;type&rsaquo; &lsaquo;name&rsaquo;
     creates a new template file. (not supported yet)
