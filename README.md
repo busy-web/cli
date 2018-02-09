@@ -35,7 +35,7 @@ npm i -g @busy-web/cli
     clean project install fresh packages
     Alias: dev:i
     Options:
-      -r, --rebuild removes the lockfile and generates a new lockfile based on current package.json only on <install>
+      --rebuild removes the lockfile and generates a new lockfile based on current package.json only on <install>
 
 ##### dev:update 
     install missing packages
@@ -53,47 +53,47 @@ npm i -g @busy-web/cli
     installs new files from the current installed version of ember-cli. (ember:update should be ran first)
     Alias: em:i
     Options:
-      -d, --diff use git difftool to merge files after init
+      --diff use git difftool to merge files after init
 
 ##### ember:update [version]
     update ember-cli locally or globally
     Alias: em:up
     Options:
-      -g, --global update global ember install
-      -d, --dry performs a dry run where no update will be performed
+      --global update global ember install
+      --dry performs a dry run where no update will be performed
 
 ##### env:config &lsaquo;EMBER_CONFIG.PATH:ENV_VAR...&rsaquo;
     injects ENV variables into and ember app config/environment
     Alias: env:c
     Options:
-      -p, --path <path> path/to/folder where file config changes are. ( default: Current Working Directory )
-      -f, --file <name> filename to replace config settings for. ( default: index.html )
-      -r, --require throw error if config or ENV settings do not exist. ( default: false )
-      -an, --allow-null allow null values to be set from ENV to APP config
+      --path <path> path/to/folder where file config changes are. ( default: Current Working Directory )
+      --file <name> filename to replace config settings for. ( default: index.html )
+      --require throw error if config or ENV settings do not exist. ( default: false )
+      --allow-null allow null values to be set from ENV to APP config
 
 ##### release &lsaquo;type&rsaquo;
     tag a new version to be released with a git tag. ARGS type: [ patch | docker | canary | alpha | beta | prod ]
     Alias: r
     Options:
-      -undefined, --no-commit prevent version from committing and creating a new tag
-      -t, --tag [name] tag the version and push to remote [name], default: origin
-      -p, --push [name] push changes to remote [name], default: origin
+      --no-commit prevent version from committing and creating a new tag
+      --tag [name] tag the version and push to remote [name], default: origin
+      --push [name] push changes to remote [name], default: origin
 
 ##### release:prune &lsaquo;version&rsaquo; [type]
     Prune a release type by version
     Alias: r:p
     Options:
-      -undefined, --dry shows the tags that would be deleted but doesnt do anything
-      -a, --all delete all tags matching the version and type
-      -m, --mod <number> mod number to prune the tags with, default: 5
-      -r, --remote [name] flag to prune remote tags for [name], default: origin
-      -p, --prod production tags can only be deleted with --prod option applied.
+      --dry shows the tags that would be deleted but doesnt do anything
+      --all delete all tags matching the version and type
+      --mod <number> mod number to prune the tags with, default: 5
+      --remote [name] flag to prune remote tags for [name], default: origin
+      --prod production tags can only be deleted with --prod option applied.
 
 ##### template &lsaquo;type&rsaquo; &lsaquo;name&rsaquo;
     creates a new template file. (not supported yet)
     Alias: t
     Options:
-      -d, --delete deletes a template file
+      --delete deletes a template file
 
 
 <!--END_DOCS-->

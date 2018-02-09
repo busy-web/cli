@@ -8,12 +8,14 @@ function parseOption(opt) {
 		cmd = `--${cmd}`;
 	}
 	
-	if (!/^-/.test(short)) {
-		short = `-${short}`;
+	if (short && !/^-/.test(short)) {
+		short = `-${short}, `;
+	} else {
+		short = '';
 	}
 	
 	args = args || [];
-	let name = `${short}, ${cmd} ${args.join(' ')}`.trim();
+	let name = `${short}${cmd} ${args.join(' ')}`.trim();
 	return { name, desc, type };
 }
 
