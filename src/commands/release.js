@@ -176,17 +176,25 @@ function tagVersion(remote, version, tag, noCommit) {
 	});
 }
 
-function pushVersion(remote, tag, push, noCommit) {
+function pushVersion(remote, tag, push, noCommit, branchOverride) {
 	if (noCommit || (!tag && !push)) {
 		return this.resolve(`Skipping push`);
 	}
+
 	// get the branch name to push to 
-	return this.cmd(`git status`, { hidecmd: true }).then(status => {
-		let [ stat ] = status.split('\n');
-		let [ ,, branch ] = stat.split(' ');
+	let branchPromise = this.resolve(branchOverride);
+	if (!branchOverride) {
+		branchPromise = this.cmd(`git status`, { hidecmd: true }).then(status => {
+			let [ stat ] = status.split('\n');
+			let [ ,, branch ] = stat.split(' ');
 		
-		// normalize branch name
-		branch = normailzeResponse(branch);
+			// normalize branch name
+			branch = normailzeResponse(branch);
+			return branch;
+		});
+	}
+
+	return branchPromise.then(branch => {
 		this.ui.info(`git push ${remote} ${branch}`);
 		// push the remote tag and branch data
 		return this.cmd(`git push ${remote} ${branch}`, { hidecmd: true })
@@ -203,7 +211,7 @@ function commitVersion(version, noCommit) {
 		.then(() => `Created release commit`);
 }
 
-function release(type, tag=false, push=false, noCommit=false) {
+function release(type, tag=false, push=false, noCommit=false, branch=false) {
 	const cwd = process.cwd();
 	const remote = getRemote.call(this, tag, push);
 	let pkgInfo = require(path.join(cwd + '/package.json'));
@@ -236,7 +244,7 @@ function release(type, tag=false, push=false, noCommit=false) {
 					this.ui.info(tagRes);
 
 					// push or skip pushing to remote branch
-					return pushVersion.call(this, remote, tag, push, noCommit).then(pushRes => {
+					return pushVersion.call(this, remote, tag, push, noCommit, branch).then(pushRes => {
 						this.ui.info(pushRes);
 
 						return ver; 
@@ -268,11 +276,12 @@ module.exports = {
 		options: [
 			{ cmd: '--no-commit', desc: 'prevent version from committing and creating a new tag' },
 			{ cmd: '--tag', short: '-t', args: [ '[name]' ], desc: 'tag the version and push to remote [name], default: origin' },
-			{ cmd: '--push', short: '-p', args: [ '[name]' ], desc: 'push changes to remote [name], default: origin' }
+			{ cmd: '--push', short: '-p', args: [ '[name]' ], desc: 'push changes to remote [name], default: origin' },
+			{ cmd: '--branch', short: '-b', args: [ '[name]' ], desc: 'override the current branch, default: current branch' }
 		],
 
 		run(type) {
-			return release.call(this, type, this.program.tag, this.program.push, this.program.noCommit).then(ver => {
+			return release.call(this, type, this.program.tag, this.program.push, this.program.noCommit, this.program.branch).then(ver => {
 				return this.resolve(`Release version ${ver} finished!`);
 			});
 		}

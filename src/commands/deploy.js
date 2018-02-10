@@ -18,7 +18,7 @@ function getBuildInfo(version) {
 
 module.exports = createCommand({
 	name: 'deploy',
-	description: 'deploy build to server. ARGS build: [ docker | canary | alpha | beta | staging | prod | production ] ( not supported yet )',
+	description: 'deploy build to server.',
 	alias: 'd',
 	args: ['<branch>'],
 	
@@ -42,7 +42,7 @@ module.exports = createCommand({
 			return this.resolve("Not a release branch");
 		}
 
-		return release.call(this, build, true).then(res => {
+		return release.call(this, build, true, true, false, branch).then(res => {
 			let info = getBuildInfo(res);
 			return prune.call(this, info.version, info.build, 5, true).then(result => {
 				this.ui.info(result);

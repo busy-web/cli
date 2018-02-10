@@ -23,8 +23,8 @@ npm i -g @busy-web/cli
 ##### busyweb help => print usage information
 
 #### Commands:
-##### deploy &lsaquo;build&rsaquo;
-    deploy build to server. ARGS build: [ docker | canary | alpha | beta | staging | prod | production ] ( not supported yet )
+##### deploy &lsaquo;branch&rsaquo;
+    deploy build to server.
     Alias: d
 
 ##### dev:clean 
@@ -78,6 +78,7 @@ npm i -g @busy-web/cli
       --no-commit prevent version from committing and creating a new tag
       --tag [name] tag the version and push to remote [name], default: origin
       --push [name] push changes to remote [name], default: origin
+      --branch [name] override the current branch, default: current branch
 
 ##### release:prune &lsaquo;version&rsaquo; [type]
     Prune a release type by version
