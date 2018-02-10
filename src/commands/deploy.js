@@ -41,14 +41,14 @@ module.exports = createCommand({
 
 		if (!isEmpty(tag)) {
 			if (/v[0-9]+\.[0-9]+\.[0-9]+$/.test(tag)) {
-				this.ui.info('Preparing production deploy...');
-				return getRevision.call(this).then(revision => {
-					return this.cmd(`ember deploy production`).then(() => {
-						return this.cmd(`ember deploy:activate --revision ${revision} production`).then(() => {
-							return this.resolve('Deploy finished!');
-						});
-					});
-				});
+				this.ui.info('Preparing production deploy...', tag);
+				//return getRevision.call(this).then(revision => {
+				//	return this.cmd(`ember deploy production`).then(() => {
+				//		return this.cmd(`ember deploy:activate --revision ${revision} production`).then(() => {
+				//			return this.resolve('Deploy finished!');
+				//		});
+				//	});
+				//});
 			} else {
 				this.resolve('Not a production tag. Skipping deploy');
 			}
