@@ -1,6 +1,9 @@
 
+const RSVP = require('rsvp');
 const colors = require('colors');
 const { assert, isDefined, isArray } = loader('utils/types');
+const logger = loader('utils/logger');
+const cmd = loader('utils/cmd');
 
 function parseOption(opt) {
 	let { cmd, short, desc, args, type } = opt;
@@ -17,6 +20,14 @@ function parseOption(opt) {
 	args = args || [];
 	let name = `${short}${cmd} ${args.join(' ')}`.trim();
 	return { name, desc, type };
+}
+
+function Cli(program) {
+	this.ui = logger;
+	this.resolve = RSVP.resolve;
+	this.reject = RSVP.reject;
+	this.cmd = cmd;
+	this.program = program;
 }
 
 module.exports = function createCommand(opts) {
@@ -80,10 +91,12 @@ module.exports = function createCommand(opts) {
 			return help;
 		};
 
+		const cli = new Cli(prog);
+
 		this.program = prog;
 		prog.action((...args) => {
 			if (run) {
-				let res = run.apply(this, args);
+				let res = run.apply(cli, args);
 				if (res && res.then) {
 					process.__busyweb.runPromise = res;
 				} else {
