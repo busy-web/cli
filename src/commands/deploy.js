@@ -31,6 +31,8 @@ module.exports = createCommand({
 	],
 	
 	run(branch, tag) {
+		this.ui.info(`Deploy for branch: ${branch}, tag: ${tag}`);
+
 		let cwd = process.cwd();
 		let pkgInfo = require(path.join(cwd + '/package.json'));
 		let version = pkgInfo.version;
@@ -40,19 +42,20 @@ module.exports = createCommand({
 		baseVer = [ baseVer[0], baseVer[1] ].join('.');
 
 		if (!isEmpty(tag)) {
-			if (/v[0-9]+\.[0-9]+\.[0-9]+$/.test(tag)) {
-				this.ui.info('Preparing production deploy...', tag);
-				//return getRevision.call(this).then(revision => {
-				//	return this.cmd(`ember deploy production`).then(() => {
-				//		return this.cmd(`ember deploy:activate --revision ${revision} production`).then(() => {
-				//			return this.resolve('Deploy finished!');
-				//		});
-				//	});
-				//});
-			} else {
-				this.resolve('Not a production tag. Skipping deploy');
+			if (!/v?[0-9]+\.[0-9]+\.[0-9]+$/.test(tag)) {
+				return this.resolve('Not a production tag. Skipping deploy');
 			}
+			this.ui.info(`Preparing production deploy for tag: ${tag}`);
+			//return getRevision.call(this).then(revision => {
+			//	return this.cmd(`ember deploy production`).then(() => {
+			//		return this.cmd(`ember deploy:activate --revision ${revision} production`).then(() => {
+			//			return this.resolve('Deploy finished!');
+			//		});
+			//	});
+			//});
 		} else if (!isEmpty(branch)) {
+			this.ui.info(`Preparing deploy for branch: ${branch}`);
+
 			let [ build, ] = buildVer.split('.');
 			if (branch === 'master') {
 				build = 'canary';
