@@ -192,10 +192,7 @@ function commitVersion(version, noCommit) {
 	}
 	// commit new version release
 	return this.cmd(`git commit -am "Release Version: ${version} [ci skip]"`, { hidecmd: true })
-		.then(res => {
-			this.ui.info(res);
-			return `Created release commit`;
-		});
+		.then(() => `git commit -> "Release Version  ${version} [ci skip]"`);
 }
 
 function gitBranch(branch=false) {

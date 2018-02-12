@@ -41,8 +41,6 @@ module.exports = createCommand({
 	],
 	
 	run(branch, tag) {
-		this.ui.info(`Deploy for branch: ${branch}, tag: ${tag}`);
-
 		let cwd = process.cwd();
 		let pkgInfo = require(path.join(cwd + '/package.json'));
 		let version = pkgInfo.version;
@@ -56,7 +54,7 @@ module.exports = createCommand({
 				return this.resolve('Not a production tag. Skipping deploy');
 			}
 			this.ui.info(`Preparing production deploy for tag: ${tag}`);
-			//return emberDeploy.call(this, 'production');
+			return emberDeploy.call(this, 'production');
 		} else if (!isEmpty(branch)) {
 			this.ui.info(`Preparing deploy for branch: ${branch}`);
 
