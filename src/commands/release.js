@@ -200,7 +200,7 @@ function commitVersion(version, noCommit) {
 
 function gitBranch(branch=false) {
 	if (branch) {
-		this.cmd(`git checkout ${branch}`, { hidecmd: true }).then(() => {
+		return this.cmd(`git checkout ${branch}`, { hidecmd: true }).then(() => {
 			return branch;
 		});
 	} else {
