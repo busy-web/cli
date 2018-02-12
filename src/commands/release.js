@@ -231,7 +231,7 @@ function release(type, tag=false, push=false, noCommit=false, branch=false) {
 	// add version action
 	vercmd += getAction(type, version);
 
-	return gitBranch(branch).then(branchName => {
+	return gitBranch.call(this, branch).then(branchName => {
 		// create new npm version string
 		return this.cmd(vercmd, { hidecmd: true }).then(ver => {
 			// normalize version info
