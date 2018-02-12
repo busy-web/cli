@@ -20,6 +20,16 @@ function getRevision() {
 	return this.cmd(`git log -1 --format=%H`, { hidecmd: true }).then(hash => hash.substr(0, 7));
 }
 
+function emberDeploy(build) {
+	return getRevision.call(this).then(revision => {
+		return this.cmd(`ember deploy ${build}`).then(() => {
+			return this.cmd(`ember deploy:activate --revision ${revision} ${build}`).then(() => {
+				return this.resolve('Deploy finished!');
+			});
+		});
+	});
+}
+
 module.exports = createCommand({
 	name: 'deploy',
 	description: 'deploy build to server.',
@@ -46,13 +56,7 @@ module.exports = createCommand({
 				return this.resolve('Not a production tag. Skipping deploy');
 			}
 			this.ui.info(`Preparing production deploy for tag: ${tag}`);
-			//return getRevision.call(this).then(revision => {
-			//	return this.cmd(`ember deploy production`).then(() => {
-			//		return this.cmd(`ember deploy:activate --revision ${revision} production`).then(() => {
-			//			return this.resolve('Deploy finished!');
-			//		});
-			//	});
-			//});
+			//return emberDeploy.call(this, 'production');
 		} else if (!isEmpty(branch)) {
 			this.ui.info(`Preparing deploy for branch: ${branch}`);
 
@@ -67,13 +71,7 @@ module.exports = createCommand({
 				let info = getBuildInfo(res);
 				return prune.call(this, info.version, info.build, 5, true).then(result => {
 					this.ui.info(result);
-					return getRevision.call(this).then(revision => {
-						return this.cmd(`ember deploy ${info.build}`).then(() => {
-							return this.cmd(`ember deploy:activate --revision ${revision} ${info.build}`).then(() => {
-								return this.resolve('Deploy finished!');
-							});
-						});
-					});
+					return emberDeploy.call(this, info.build);
 				});
 			});
 		} else {

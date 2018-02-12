@@ -176,30 +176,14 @@ function tagVersion(remote, version, tag, noCommit) {
 	});
 }
 
-function pushVersion(remote, tag, push, noCommit, branchOverride) {
+function pushVersion(remote, branch, tag, push, noCommit) {
 	if (noCommit || (!tag && !push)) {
 		return this.resolve(`Skipping push`);
 	}
 
-	// get the branch name to push to 
-	let branchPromise = this.resolve(branchOverride);
-	if (!branchOverride) {
-		branchPromise = this.cmd(`git status`, { hidecmd: true }).then(status => {
-			let [ stat ] = status.split('\n');
-			let [ ,, branch ] = stat.split(' ');
-		
-			// normalize branch name
-			branch = normailzeResponse(branch);
-			return branch;
-		});
-	}
-
-	return branchPromise.then(branch => {
-		this.ui.info(`git push ${remote} ${branch}`);
-		// push the remote tag and branch data
-		return this.cmd(`git push ${remote} ${branch}`, { hidecmd: true })
-			.then(() => `Pushed to ${remote}/${branch}`);
-	});
+	// push the remote tag and branch data
+	return this.cmd(`git push ${remote} ${branch}`, { hidecmd: true })
+		.then(() => `Pushed to ${remote}/${branch}`);
 }
 
 function commitVersion(version, noCommit) {
@@ -208,7 +192,28 @@ function commitVersion(version, noCommit) {
 	}
 	// commit new version release
 	return this.cmd(`git commit -am "Release Version: ${version} [ci skip]"`, { hidecmd: true })
-		.then(() => `Created release commit`);
+		.then(res => {
+			this.ui.info(res);
+			return `Created release commit`;
+		});
+}
+
+function gitBranch(branch=false) {
+	if (branch) {
+		this.cmd(`git checkout ${branch}`, { hidecmd: true }).then(() => {
+			return branch;
+		});
+	} else {
+		// get the branch name to push to 
+		return this.cmd(`git status`, { hidecmd: true }).then(status => {
+			let [ stat ] = status.split('\n');
+			let [ ,, branchName ] = stat.split(' ');
+		
+			// normalize branch name
+			branch = normailzeResponse(branchName);
+			return branch;
+		});
+	}
 }
 
 function release(type, tag=false, push=false, noCommit=false, branch=false) {
@@ -226,37 +231,34 @@ function release(type, tag=false, push=false, noCommit=false, branch=false) {
 	// add version action
 	vercmd += getAction(type, version);
 
-	// create new npm version string
-	return this.cmd(vercmd, { hidecmd: true }).then(ver => {
-		// normalize version info
-		ver = normailzeResponse(ver);
-		this.ui.info(`Version created: ${ver}`);
+	return gitBranch(branch).then(branchName => {
+		// create new npm version string
+		return this.cmd(vercmd, { hidecmd: true }).then(ver => {
+			// normalize version info
+			ver = normailzeResponse(ver);
+			this.ui.info(`Version created: ${ver}`);
 
-		// save new version in public/version.json if project has one
-		return savePackageInfo.call(this, ver).then(() => {
+			// save new version in public/version.json if project has one
+			return savePackageInfo.call(this, ver).then(() => {
 
-			// commit version info.
-			return commitVersion.call(this, ver, noCommit).then(commitRes => {
-				this.ui.info(commitRes);
+				// commit version info.
+				return commitVersion.call(this, ver, noCommit).then(commitRes => {
+					this.ui.info(commitRes);
 
-				// tag promise has either pushed a tag or skipped it.
-				return tagVersion.call(this, remote, ver, tag, noCommit).then(tagRes => {
-					this.ui.info(tagRes);
+					// tag promise has either pushed a tag or skipped it.
+					return tagVersion.call(this, remote, ver, tag, noCommit).then(tagRes => {
+						this.ui.info(tagRes);
 
-					// push or skip pushing to remote branch
-					return pushVersion.call(this, remote, tag, push, noCommit, branch).then(pushRes => {
-						this.ui.info(pushRes);
+						// push or skip pushing to remote branch
+						return pushVersion.call(this, remote, branchName, tag, push, noCommit).then(pushRes => {
+							this.ui.info(pushRes);
 
-						return ver; 
+							return ver; 
+						});
 					});
 				});
 			});
 		});
-	}).catch(err => {
-		if (process.__busyweb.debug) {
-			this.error(err);
-		}
-		return this.reject(`Run cmd: ${vercmd} failed to execute.`);
 	});
 }
 
