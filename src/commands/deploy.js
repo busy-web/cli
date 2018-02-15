@@ -59,9 +59,7 @@ module.exports = createCommand({
 			this.ui.info(`Preparing deploy for branch: ${branch}`);
 
 			let [ build, ] = buildVer.split('.');
-			if (branch === 'master') {
-				build = 'canary';
-			} else if (branch !== baseVer || isEmpty(buildVer)) {
+			if (branch !== baseVer || isEmpty(buildVer)) {
 				return this.resolve("Not a release branch");
 			}
 
