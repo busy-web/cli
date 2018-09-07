@@ -5,7 +5,7 @@
 const path = require('path');
 const createCommand = loader('utils/create-command');
 const { release } = loader('commands/release');
-const { prune } = loader('commands/release-prune');
+//const { prune } = loader('commands/release-prune');
 const { isEmpty } = loader('utils/types');
 
 function getBuildInfo(version) {
@@ -37,7 +37,7 @@ module.exports = createCommand({
 	args: ['[branch]', '[tag]'],
 	
 	options: [
-		//{ cmd: '--prod', short: '-p', desc: 'production tags can only be deleted with --prod option applied.' }
+		{ cmd: '--tag', short: '-t', desc: 'tag deploy for docker release' }
 	],
 	
 	run(branch, tag) {
@@ -53,22 +53,31 @@ module.exports = createCommand({
 			if (!/v?[0-9]+\.[0-9]+\.[0-9]+$/.test(tag)) {
 				return this.resolve('Not a production tag. Skipping deploy');
 			}
+
 			this.ui.info(`Preparing production deploy for tag: ${tag}`);
+
 			return emberDeploy.call(this, 'production');
 		} else if (!isEmpty(branch)) {
-			this.ui.info(`Preparing deploy for branch: ${branch}`);
-
-			let [ build, ] = buildVer.split('.');
-			if (branch !== baseVer || isEmpty(buildVer)) {
+			if (isEmpty(buildVer)) {
 				return this.resolve("Not a release branch");
 			}
 
-			return release.call(this, build, true, true, false, branch).then(res => {
+			this.ui.info(`Preparing deploy for branch: ${branch}`);
+
+			const isMasterBuild = (branch === 'master' && /canary|alpha/.test(buildVer));
+			const [ build, ] = buildVer.split('.');
+
+			if (!(isMasterBuild || branch === baseVer)) {
+				return this.resolve("Not a release branch");
+			}
+
+			return release.call(this, build, true, false, false, branch).then(res => {
 				let info = getBuildInfo(res);
-				return prune.call(this, info.version, info.build, 5, true).then(result => {
-					this.ui.info(result);
-					return emberDeploy.call(this, info.build);
-				});
+				// return prune.call(this, info.version, info.build, 5, true).then(result => {
+				//this.ui.info(result);
+				
+				return emberDeploy.call(this, info.build);
+				//});
 			});
 		} else {
 			return this.reject('You must provide a tag or a branch');

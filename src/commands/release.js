@@ -48,6 +48,9 @@ function savePackageInfo(version) {
 	return read('public/version.json').then(data => {
 		let dout = JSON.parse(data);
 		dout.version = version;
+		dout.buildDate = (new Date()).toISOString();
+		dout.buildTime = Date.now();
+
 		return write('public/version.json', JSON.stringify(dout));
 	}).catch(() => this.resolve());
 }
@@ -165,8 +168,8 @@ function getRemote(tag, push) {
 	return remote;
 }
 
-function tagVersion(remote, version, tag, noCommit) {
-	if (noCommit || !tag) {
+function tagVersion(remote, version, tag, commit) {
+	if (!commit || !tag) {
 		return this.resolve(`Skipping tag`);
 	}
 	// create and push the new tag
@@ -176,8 +179,8 @@ function tagVersion(remote, version, tag, noCommit) {
 	});
 }
 
-function pushVersion(remote, branch, tag, push, noCommit) {
-	if (noCommit || (!tag && !push)) {
+function pushVersion(remote, branch, tag, push, commit) {
+	if (!commit || (!tag && !push)) {
 		return this.resolve(`Skipping push`);
 	}
 
@@ -186,8 +189,8 @@ function pushVersion(remote, branch, tag, push, noCommit) {
 		.then(() => `Pushed to ${remote}/${branch}`);
 }
 
-function commitVersion(version, noCommit) {
-	if (noCommit) {
+function commitVersion(version, commit) {
+	if (!commit) {
 		return this.resolve(`Skipping commit`);
 	}
 	// commit new version release
@@ -213,7 +216,7 @@ function gitBranch(branch=false) {
 	}
 }
 
-function release(type, tag=false, push=false, noCommit=false, branch=false) {
+function release(type, commit=false, tag=false, push=false, branch=false) {
 	const cwd = process.cwd();
 	const remote = getRemote.call(this, tag, push);
 	let pkgInfo = require(path.join(cwd + '/package.json'));
@@ -239,15 +242,15 @@ function release(type, tag=false, push=false, noCommit=false, branch=false) {
 			return savePackageInfo.call(this, ver).then(() => {
 
 				// commit version info.
-				return commitVersion.call(this, ver, noCommit).then(commitRes => {
+				return commitVersion.call(this, ver, commit).then(commitRes => {
 					this.ui.info(commitRes);
 
 					// tag promise has either pushed a tag or skipped it.
-					return tagVersion.call(this, remote, ver, tag, noCommit).then(tagRes => {
+					return tagVersion.call(this, remote, ver, tag, commit).then(tagRes => {
 						this.ui.info(tagRes);
 
 						// push or skip pushing to remote branch
-						return pushVersion.call(this, remote, branchName, tag, push, noCommit).then(pushRes => {
+						return pushVersion.call(this, remote, branchName, tag, push, commit).then(pushRes => {
 							this.ui.info(pushRes);
 
 							return ver; 
@@ -273,14 +276,14 @@ module.exports = {
 		args: ['<type>'],
 		
 		options: [
-			{ cmd: '--no-commit', desc: 'prevent version from committing and creating a new tag' },
+			{ cmd: '--commit', desc: 'commit version to git' },
 			{ cmd: '--tag', short: '-t', args: [ '[name]' ], desc: 'tag the version and push to remote [name], default: origin' },
 			{ cmd: '--push', short: '-p', args: [ '[name]' ], desc: 'push changes to remote [name], default: origin' },
 			{ cmd: '--branch', short: '-b', args: [ '[name]' ], desc: 'override the current branch, default: current branch' }
 		],
 
 		run(type) {
-			return release.call(this, type, this.program.tag, this.program.push, this.program.noCommit, this.program.branch).then(ver => {
+			return release.call(this, type, this.program.commit, this.program.tag, this.program.push, this.program.branch).then(ver => {
 				return this.resolve(`Release version ${ver} finished!`);
 			});
 		}
