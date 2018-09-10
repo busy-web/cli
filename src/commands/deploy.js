@@ -71,7 +71,7 @@ module.exports = createCommand({
 				return this.resolve("Not a release branch");
 			}
 
-			return release.call(this, build, true, false, false, branch).then(res => {
+			return release.call(this, build, true, false, true, branch).then(res => {
 				let info = getBuildInfo(res);
 				// return prune.call(this, info.version, info.build, 5, true).then(result => {
 				//this.ui.info(result);
